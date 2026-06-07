@@ -1,0 +1,80 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CREATOR
+  EVENTEE
+}
+
+enum TicketStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  password     String?
+  name         String
+  role         Role       @default(EVENTEE)
+  googleId     String?    @unique
+  authProvider String     @default("local")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  events       Event[]    @relation("CreatorEvents")
+  tickets      Ticket[]
+  reminders    Reminder[]
+}
+
+model Event {
+  id               String     @id @default(uuid())
+  title            String
+  description      String
+  date             DateTime
+  location         String
+  price            Float
+  capacity         Int
+  ticketsSold      Int        @default(0)
+  creatorId        String
+  creator          User       @relation("CreatorEvents", fields: [creatorId], references: [id], onDelete: Cascade)
+  reminderInterval String     @default("1_DAY") // e.g. "1_DAY", "1_WEEK"
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  tickets          Ticket[]
+  reminders        Reminder[]
+}
+
+model Ticket {
+  id                String       @id @default(uuid())
+  eventId           String
+  event             Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentReference  String       @unique
+  status            TicketStatus @default(PENDING)
+  verificationToken String       @unique
+  qrCodeUrl         String?      // Data URL representation of QR code
+  scanned           Boolean      @default(false)
+  scannedAt         DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+model Reminder {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  triggerTime DateTime
+  sent        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, eventId, triggerTime])
+}
