@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
 import { Progress } from '../components/ui/progress';
 import { Calendar, MapPin, Ticket, Sparkles, ArrowLeft, Share2, Users, AlertTriangle, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { formatNaira } from '../lib/formatCurrency';
 
 interface Event {
   id: string;
@@ -125,7 +126,7 @@ export const EventDetails: React.FC = () => {
   const capacityPct = (event.ticketsSold / event.capacity) * 100;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 bg-zinc-950 text-white min-h-[calc(100vh-4rem)]">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 bg-background text-foreground min-h-[calc(100vh-4rem)]">
       {/* Back button */}
       <Link to="/events" className="inline-flex items-center space-x-2 text-zinc-400 hover:text-white mb-6 group">
         <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
@@ -194,7 +195,7 @@ export const EventDetails: React.FC = () => {
               <div className="flex items-baseline justify-between rounded-lg bg-zinc-950 border border-zinc-800 p-4">
                 <span className="text-sm text-zinc-400">Ticket Price</span>
                 <span className="text-2xl font-black text-emerald-400">
-                  {event.price === 0 ? 'FREE' : `$${event.price}`}
+                  {formatNaira(event.price)}
                 </span>
               </div>
 

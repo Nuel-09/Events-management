@@ -91,6 +91,12 @@ async function main() {
     ),
   );
 
+  const existingEvents = await prisma.event.count({ where: { creatorId: creator.id } });
+  if (existingEvents > 0) {
+    console.log(`Skipping event seed — ${existingEvents} events already exist for ${creator.email}`);
+    return;
+  }
+
   const now = new Date();
   let created = 0;
 

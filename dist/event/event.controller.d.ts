@@ -6,31 +6,31 @@ export declare class EventController {
     private eventService;
     constructor(eventService: EventService);
     create(createEventDto: CreateEventDto, creatorId: string): Promise<{
-        id: string;
-        title: string;
         description: string;
+        title: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
         date: Date;
         location: string;
         price: number;
         capacity: number;
-        ticketsSold: number;
         reminderInterval: string;
-        createdAt: Date;
-        updatedAt: Date;
+        ticketsSold: number;
         creatorId: string;
     }>;
     update(eventId: string, updateEventDto: UpdateEventDto, creatorId: string): Promise<{
-        id: string;
-        title: string;
         description: string;
+        title: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
         date: Date;
         location: string;
         price: number;
         capacity: number;
-        ticketsSold: number;
         reminderInterval: string;
-        createdAt: Date;
-        updatedAt: Date;
+        ticketsSold: number;
         creatorId: string;
     }>;
     remove(eventId: string, creatorId: string): Promise<{
@@ -39,35 +39,35 @@ export declare class EventController {
     getCreatorEvents(creatorId: string): Promise<({
         tickets: ({
             user: {
-                id: string;
-                name: string;
                 email: string;
+                name: string;
+                id: string;
             };
         } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
             eventId: string;
-            userId: string;
             paymentReference: string;
             status: import("@prisma/client").$Enums.TicketStatus;
             verificationToken: string;
             qrCodeUrl: string | null;
             scanned: boolean;
             scannedAt: Date | null;
+            userId: string;
         })[];
     } & {
-        id: string;
-        title: string;
         description: string;
+        title: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
         date: Date;
         location: string;
         price: number;
         capacity: number;
-        ticketsSold: number;
         reminderInterval: string;
-        createdAt: Date;
-        updatedAt: Date;
+        ticketsSold: number;
         creatorId: string;
     })[]>;
     findAll(search?: string, limit?: number, cursor?: string): Promise<{}>;

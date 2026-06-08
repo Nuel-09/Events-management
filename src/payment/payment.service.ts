@@ -69,6 +69,7 @@ export class PaymentService {
         {
           email,
           amount: amountInKobo,
+          currency: 'NGN',
           reference,
           metadata: {
             ticketId: ticket.id,

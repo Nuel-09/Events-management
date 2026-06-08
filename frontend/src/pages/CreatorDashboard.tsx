@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { DateTimePicker } from '../components/DateTimePicker';
 import { QrCameraScanner } from '../components/QrCameraScanner';
 import { LayoutDashboard, Calendar, Users, QrCode, Plus, Pencil, Trash2, ShieldCheck, HelpCircle, AlertTriangle, CheckCircle2, ChevronRight, Coins } from 'lucide-react';
+import { formatNaira } from '../lib/formatCurrency';
 
 interface EventBreakdown {
   eventId: string;
@@ -299,7 +300,7 @@ export const CreatorDashboard: React.FC = () => {
                   <Coins className="h-5 w-5 text-emerald-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-black text-emerald-400">${getOverallRevenue().toFixed(2)}</div>
+                  <div className="text-3xl font-black text-emerald-500">{formatNaira(getOverallRevenue())}</div>
                   <p className="text-xs text-zinc-500 mt-1">Paid ticket sales revenue</p>
                 </CardContent>
               </Card>
@@ -332,7 +333,7 @@ export const CreatorDashboard: React.FC = () => {
                           <TableRow key={ev.eventId} className="border-zinc-800/60 hover:bg-zinc-900/20">
                             <TableCell className="font-semibold text-white">{ev.title}</TableCell>
                             <TableCell className="text-xs">{formatDate(ev.date)}</TableCell>
-                            <TableCell className="font-medium text-emerald-400">${ev.price}</TableCell>
+                            <TableCell className="font-medium text-emerald-500">{formatNaira(ev.price)}</TableCell>
                             <TableCell className="w-1/4">
                               <div className="space-y-1">
                                 <Progress value={pct} className="h-1.5 bg-zinc-800 [&>div]:bg-indigo-500" />
@@ -592,7 +593,7 @@ export const CreatorDashboard: React.FC = () => {
             {/* Price & Capacity */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="form-price" className="text-zinc-300 text-xs">Price ($ USD)</Label>
+                <Label htmlFor="form-price" className="text-zinc-300 text-xs">Price (₦ NGN)</Label>
                 <Input
                   id="form-price"
                   type="number"

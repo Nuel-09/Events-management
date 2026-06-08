@@ -24,16 +24,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(resolvedTheme);
+    root.classList.toggle('dark', resolvedTheme === 'dark');
   }, [resolvedTheme]);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => {
       if (theme === 'system') {
-        document.documentElement.classList.remove('light', 'dark');
-        document.documentElement.classList.add(getSystemTheme());
+        document.documentElement.classList.toggle('dark', getSystemTheme() === 'dark');
       }
     };
     media.addEventListener('change', handler);

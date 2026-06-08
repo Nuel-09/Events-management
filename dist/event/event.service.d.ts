@@ -8,31 +8,31 @@ export declare class EventService {
     constructor(prisma: PrismaService, cacheManager: Cache);
     private invalidateCache;
     create(creatorId: string, dto: CreateEventDto): Promise<{
-        id: string;
-        title: string;
         description: string;
+        title: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
         date: Date;
         location: string;
         price: number;
         capacity: number;
-        ticketsSold: number;
         reminderInterval: string;
-        createdAt: Date;
-        updatedAt: Date;
+        ticketsSold: number;
         creatorId: string;
     }>;
     update(eventId: string, creatorId: string, dto: UpdateEventDto): Promise<{
-        id: string;
-        title: string;
         description: string;
+        title: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
         date: Date;
         location: string;
         price: number;
         capacity: number;
-        ticketsSold: number;
         reminderInterval: string;
-        createdAt: Date;
-        updatedAt: Date;
+        ticketsSold: number;
         creatorId: string;
     }>;
     remove(eventId: string, creatorId: string): Promise<{
@@ -43,35 +43,35 @@ export declare class EventService {
     getCreatorEvents(creatorId: string): Promise<({
         tickets: ({
             user: {
-                id: string;
-                name: string;
                 email: string;
+                name: string;
+                id: string;
             };
         } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
             eventId: string;
-            userId: string;
             paymentReference: string;
             status: import("@prisma/client").$Enums.TicketStatus;
             verificationToken: string;
             qrCodeUrl: string | null;
             scanned: boolean;
             scannedAt: Date | null;
+            userId: string;
         })[];
     } & {
-        id: string;
-        title: string;
         description: string;
+        title: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
         date: Date;
         location: string;
         price: number;
         capacity: number;
-        ticketsSold: number;
         reminderInterval: string;
-        createdAt: Date;
-        updatedAt: Date;
+        ticketsSold: number;
         creatorId: string;
     })[]>;
 }

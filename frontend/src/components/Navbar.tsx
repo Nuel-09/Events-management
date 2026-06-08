@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Menu, X, LogOut, Compass, Ticket, LayoutDashboard, User as UserIcon, Sun, Moon } from 'lucide-react';
 import { Button } from './ui/button';
 import { useTheme } from '../context/ThemeContext';
+import { EventfulLogo } from './EventfulLogo';
 
 export const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -25,11 +26,9 @@ export const Navbar: React.FC = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/events" className="flex items-center space-x-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-xl shadow-lg shadow-indigo-600/20">
-                E
-              </span>
-              <span className="text-xl font-bold tracking-tight text-white">
+            <Link to="/events" className="flex items-center space-x-2 group">
+              <EventfulLogo className="h-9 w-9 shrink-0 transition-transform group-hover:scale-105" />
+              <span className="text-xl font-bold tracking-tight text-foreground">
                 Event<span className="text-indigo-500">ful</span>
               </span>
             </Link>
@@ -41,8 +40,8 @@ export const Navbar: React.FC = () => {
               to="/events"
               className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActive('/events')
-                  ? 'bg-zinc-900 text-white'
-                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <Compass className="h-4 w-4" />
@@ -54,8 +53,8 @@ export const Navbar: React.FC = () => {
                   to="/tickets"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive('/tickets')
-                      ? 'bg-zinc-900 text-white'
-                      : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   }`}
                 >
                   <Ticket className="h-4 w-4" />
@@ -68,8 +67,8 @@ export const Navbar: React.FC = () => {
                   to="/dashboard"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive('/dashboard')
-                      ? 'bg-zinc-900 text-white'
-                      : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   }`}
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -91,9 +90,9 @@ export const Navbar: React.FC = () => {
             </Button>
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 rounded-full bg-zinc-900 px-3 py-1 border border-zinc-800">
-                  <UserIcon className="h-4 w-4 text-zinc-400" />
-                  <span className="text-xs font-semibold text-zinc-300 max-w-[120px] truncate">{user?.name}</span>
+                <div className="flex items-center space-x-2 rounded-full bg-muted px-3 py-1 border border-border">
+                  <UserIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs font-semibold text-foreground max-w-[120px] truncate">{user?.name}</span>
                   <span className="rounded bg-indigo-950 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-indigo-400">
                     {user?.role}
                   </span>

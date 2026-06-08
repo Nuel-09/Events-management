@@ -149,7 +149,7 @@ export class EventController {
     <p><strong>Description:</strong> ${event.description}</p>
     <p><strong>Venue:</strong> ${event.location}</p>
     <p><strong>Date & Time:</strong> ${formattedDate}</p>
-    <p><strong>Ticket Price:</strong> $${event.price}</p>
+    <p><strong>Ticket Price:</strong> ${event.price === 0 ? 'FREE' : `₦${Number(event.price).toLocaleString('en-NG')}`}</p>
     <a href="/events/${event.id}" class="btn">View on Eventful</a>
   </div>
   

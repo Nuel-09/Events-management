@@ -103,6 +103,7 @@ let PaymentService = class PaymentService {
             const response = await axios_1.default.post(`${this.paystackUrl}/transaction/initialize`, {
                 email,
                 amount: amountInKobo,
+                currency: 'NGN',
                 reference,
                 metadata: {
                     ticketId: ticket.id,
