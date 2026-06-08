@@ -1,98 +1,174 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Eventful
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Full-stack event ticketing platform with QR codes, payments, and analytics.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## About
 
-## Description
+**Eventful** helps creators publish events, sell tickets, scan attendees at the gate, and track revenue — while eventees discover events, pay securely, and manage tickets with QR codes and email reminders.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| | |
+|---|---|
+| **Live app** | [https://events-management-2fpp.onrender.com/events](https://events-management-2fpp.onrender.com/events) |
+| **API docs (Swagger)** | [https://eventful-backend-dn2u.onrender.com/docs](https://eventful-backend-dn2u.onrender.com/docs) |
+| **Website** | [https://youreventful.org](https://youreventful.org) |
 
-## Project setup
+**Topics:** `react` · `nodejs` · `typescript` · `postgresql` · `nestjs` · `event-management`
 
-```bash
-$ npm install
+---
+
+## Features
+
+### Creators
+- Create and manage events (capacity, pricing, reminders)
+- Creator dashboard with analytics and booking lists
+- QR camera check-in at the venue gate
+- Payment history across events
+
+### Eventees
+- Browse and book tickets (Paystack, NGN)
+- QR tickets with deep links
+- Custom email reminders before events
+- Google OAuth and email/password auth
+- Profile management (name, password, account deletion)
+
+### Platform
+- JWT authentication with role-based access (`CREATOR` / `EVENTEE`)
+- Transactional email via Resend (`no-reply@`, `support@`, custom domain)
+- Redis caching and rate limiting
+- Scheduled reminder delivery (cron)
+- Light/dark theme on the frontend
+
+---
+
+## Tech stack
+
+| Layer | Technologies |
+|-------|----------------|
+| **Frontend** | React, TypeScript, Vite, Tailwind CSS, shadcn/ui |
+| **Backend** | NestJS 11, TypeScript, Prisma, PostgreSQL |
+| **Payments** | Paystack |
+| **Email** | Resend + Cloudflare Email Routing |
+| **Cache / limits** | Redis, Upstash |
+| **Auth** | JWT, Google OAuth, bcrypt |
+| **Deploy** | Render |
+
+---
+
+## Project structure
+
+```
+HNG-Capstone/
+├── frontend/          # React SPA (Vite)
+├── src/               # NestJS API
+├── prisma/            # Schema, migrations, seed
+├── render.yaml        # Render deployment blueprint
+└── .env.example       # Backend env template
 ```
 
-## Compile and run the project
+---
+
+## Quick start (local)
+
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL
+- Redis (optional locally; defaults to `redis://localhost:6379`)
+
+### 1. Backend
 
 ```bash
-# development
-$ npm run start
+npm install --legacy-peer-deps
+cp .env.example .env
+# Edit .env: DATABASE_URL, JWT_SECRET, PAYSTACK_SECRET_KEY, etc.
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npx prisma migrate dev
+npx prisma db seed
+npm run start:dev
 ```
 
-## Run tests
+- API: `http://localhost:3000`
+- Swagger: `http://localhost:3000/docs`
+
+### 2. Frontend
 
 ```bash
-# unit tests
-$ npm run test
+cd frontend
+npm install
+cp .env.example .env
+# Set VITE_API_URL=http://localhost:3000
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run dev
 ```
+
+- App: `http://localhost:5173`
+
+---
+
+## Environment variables
+
+See [`.env.example`](.env.example) (backend) and [`frontend/.env.example`](frontend/.env.example).
+
+Key production values on Render:
+
+| Variable | Service | Purpose |
+|----------|---------|---------|
+| `DATABASE_URL` | API | PostgreSQL connection |
+| `REDIS_URL` | API | Cache + throttling |
+| `JWT_SECRET` | API | Auth tokens |
+| `CLIENT_URL` | API | CORS + Paystack callback |
+| `PAYSTACK_SECRET_KEY` | API | Payments |
+| `RESEND_API_KEY` | API | Outbound email |
+| `MAIL_DOMAIN` | API | e.g. `youreventful.org` |
+| `VITE_API_URL` | Web | Backend URL |
+| `VITE_GOOGLE_CLIENT_ID` | Web | Google sign-in |
+
+---
+
+## API documentation
+
+Interactive Swagger UI:
+
+- **Production:** [https://eventful-backend-dn2u.onrender.com/docs](https://eventful-backend-dn2u.onrender.com/docs)
+- **Local:** `http://localhost:3000/docs`
+
+Authenticate via **Authorize** using a Bearer token from `POST /auth/login` or `POST /auth/google`.
+
+Main route groups: `auth`, `events`, `payments`, `tickets`, `analytics`, `notifications`.
+
+---
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Deploy both services on [Render](https://render.com) using [`render.yaml`](render.yaml):
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. **eventful-api** — NestJS web service  
+2. **eventful-web** — static site (`frontend/dist`)
+
+Set all env vars in the Render dashboard before the first deploy. Run migrations via the API start command (`prisma migrate deploy`).
+
+---
+
+## Scripts
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Backend
+npm run start:dev      # Dev server with watch
+npm run build          # Compile to dist/
+npm run test           # Unit tests
+npm run start:prod     # Production (node dist/main.js)
+
+# Database
+npx prisma migrate dev
+npx prisma db seed
+
+# Frontend
+cd frontend && npm run dev
+cd frontend && npm run build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT

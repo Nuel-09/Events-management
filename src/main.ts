@@ -56,7 +56,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document, {
+  SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
     },
@@ -75,6 +75,6 @@ async function bootstrap() {
 
   console.log(`🚀 Eventful Backend is running on: http://localhost:${port}`);
   console.log(`🗄️  Database host: ${dbHost}`);
-  console.log(`📚 Swagger Documentation is available on: http://localhost:${port}/api-docs`);
+  console.log(`📚 Swagger Documentation is available on: http://localhost:${port}/docs`);
 }
 bootstrap();
