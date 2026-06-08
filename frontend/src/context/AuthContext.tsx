@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
+import { getApiErrorMessage } from '../lib/apiErrors';
 
 interface User {
   id: string;
@@ -77,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { access_token, user: userData } = response.data;
       persistSession(access_token, userData);
     } catch (err: any) {
-      throw new Error(err.response?.data?.message || 'Login failed');
+      throw new Error(getApiErrorMessage(err, 'Login failed'));
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { access_token, user: userData } = response.data;
       persistSession(access_token, userData);
     } catch (err: any) {
-      throw new Error(err.response?.data?.message || 'Google login failed');
+      throw new Error(getApiErrorMessage(err, 'Google login failed'));
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await api.post('/auth/register', { email, password, name, role });
     } catch (err: any) {
-      throw new Error(err.response?.data?.message || 'Registration failed');
+      throw new Error(getApiErrorMessage(err, 'Registration failed'));
     } finally {
       setLoading(false);
     }

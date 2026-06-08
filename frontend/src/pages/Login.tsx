@@ -6,7 +6,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
-import { KeyRound, Mail, AlertTriangle } from 'lucide-react';
+import { Mail, AlertTriangle } from 'lucide-react';
+import { PasswordInput } from '../components/PasswordInput';
 
 export const Login: React.FC = () => {
   const { login, googleLogin } = useAuth();
@@ -85,18 +86,13 @@ export const Login: React.FC = () => {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-foreground">Password</Label>
               </div>
-              <div className="relative">
-                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
-                  required
-                />
-              </div>
+              <PasswordInput
+                id="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
 
             <Button

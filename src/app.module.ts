@@ -37,9 +37,11 @@ import { AnalyticsModule } from './analytics/analytics.module';
         throttlers: [
           {
             ttl: 60000, // 1 minute
-            limit: 100, // 100 requests per IP per minute
+            limit: 10, // 10 requests per IP per minute
           },
         ],
+        errorMessage:
+          'Too many attempts. Please wait a minute and try again.',
         storage: new ThrottlerStorageRedisService(
           new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
         ),

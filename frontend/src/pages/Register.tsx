@@ -5,7 +5,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
-import { Mail, KeyRound, User as UserIcon, CalendarDays, BarChart3, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Mail, User as UserIcon, CalendarDays, BarChart3, AlertTriangle } from 'lucide-react';
+import { PasswordInput } from '../components/PasswordInput';
 
 export const Register: React.FC = () => {
   const { register } = useAuth();
@@ -96,18 +97,13 @@ export const Register: React.FC = () => {
             {/* Password Input */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-foreground">Password</Label>
-              <div className="relative">
-                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="•••••••• (min 6 chars)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-background border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
-                  required
-                />
-              </div>
+              <PasswordInput
+                id="password"
+                placeholder="•••••••• (min 6 chars)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
 
             {/* Role Selection */}
