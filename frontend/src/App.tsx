@@ -12,6 +12,7 @@ import { EventDetails } from './pages/EventDetails';
 import { PaymentCallback } from './pages/PaymentCallback';
 import { MyTickets } from './pages/MyTickets';
 import { CreatorDashboard } from './pages/CreatorDashboard';
+import { Profile } from './pages/Profile';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -42,6 +43,14 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={['EVENTEE']}>
                         <PaymentCallback />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
                       </ProtectedRoute>
                     }
                   />

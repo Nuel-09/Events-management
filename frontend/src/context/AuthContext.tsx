@@ -6,6 +6,13 @@ interface User {
   email: string;
   name: string;
   role: 'CREATOR' | 'EVENTEE';
+  hasPassword: boolean;
+}
+
+interface UpdateProfilePayload {
+  name?: string;
+  currentPassword?: string;
+  newPassword?: string;
 }
 
 interface AuthContextType {
@@ -15,6 +22,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   googleLogin: (idToken: string) => Promise<void>;
   register: (email: string, password: string, name: string, role: 'CREATOR' | 'EVENTEE') => Promise<void>;
+  updateProfile: (payload: UpdateProfilePayload) => Promise<void>;
+  sendTestEmail: () => Promise<string>;
+  deleteAccount: () => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -27,14 +37,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('eventful_token');
-    const savedUser = localStorage.getItem('eventful_user');
+    const restoreSession = async () => {
+      const savedToken = localStorage.getItem('eventful_token');
+      if (!savedToken) {
+        setLoading(false);
+        return;
+      }
 
-    if (savedToken && savedUser) {
       setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+
+      try {
+        const response = await api.get('/auth/me');
+        setUser(response.data);
+        localStorage.setItem('eventful_user', JSON.stringify(response.data));
+      } catch {
+        localStorage.removeItem('eventful_token');
+        localStorage.removeItem('eventful_user');
+        setToken(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    restoreSession();
   }, []);
 
   const persistSession = (access_token: string, userData: User) => {
@@ -88,10 +114,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const updateProfile = async (payload: UpdateProfilePayload) => {
+    const response = await api.patch('/auth/me', payload);
+    setUser(response.data);
+    localStorage.setItem('eventful_user', JSON.stringify(response.data));
+  };
+
+  const sendTestEmail = async () => {
+    const response = await api.post('/auth/me/test-email');
+    return response.data.message as string;
+  };
+
+  const deleteAccount = async () => {
+    await api.delete('/auth/me');
+    logout();
+  };
+
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, googleLogin, register, logout, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        login,
+        googleLogin,
+        register,
+        updateProfile,
+        sendTestEmail,
+        deleteAccount,
+        logout,
+        isAuthenticated,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

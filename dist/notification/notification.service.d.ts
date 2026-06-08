@@ -9,6 +9,7 @@ export declare class NotificationService {
         reminderId: string;
         triggerTime: Date;
     }>;
+    private normalizeTriggerTime;
     handleRemindersCron(): Promise<void>;
     private dispatchNotification;
 }

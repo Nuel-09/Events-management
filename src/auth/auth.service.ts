@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail/mail.service';
@@ -27,21 +28,113 @@ export class AuthService {
     this.googleClient = clientId ? new OAuth2Client(clientId) : null;
   }
 
+  private toPublicUser(user: {
+    id: string;
+    email: string;
+    name: string;
+    role: Role;
+    password?: string | null;
+  }) {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      hasPassword: !!user.password,
+    };
+  }
+
   private buildAuthResponse(user: { id: string; email: string; name: string; role: Role }) {
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: this.toPublicUser(user),
     };
   }
 
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, name: true, role: true, password: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return this.toPublicUser(user);
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (dto.name === undefined && !dto.newPassword) {
+      throw new BadRequestException('Provide a name and/or newPassword to update');
+    }
+
+    const data: { name?: string; password?: string } = {};
+
+    if (dto.name !== undefined) {
+      data.name = dto.name.trim();
+    }
+
+    if (dto.newPassword) {
+      if (user.password) {
+        if (!dto.currentPassword) {
+          throw new BadRequestException(
+            'currentPassword is required when changing an existing password',
+          );
+        }
+        const valid = await bcrypt.compare(dto.currentPassword, user.password);
+        if (!valid) {
+          throw new UnauthorizedException('Current password is incorrect');
+        }
+      }
+      data.password = await bcrypt.hash(dto.newPassword, 10);
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: { id: true, email: true, name: true, role: true, password: true },
+    });
+
+    return this.toPublicUser(updated);
+  }
+
+  async sendTestEmail(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, name: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    await this.mailService.sendDomainTest(user.email, user.name);
+
+    return { message: `Test email sent to ${user.email}` };
+  }
+
+  async deleteAccount(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    await this.prisma.user.delete({ where: { id: userId } });
+
+    return { message: 'Account deleted successfully' };
+  }
+
   async register(registerDto: RegisterDto) {
-    const { email, password, name, role } = registerDto;
+    const email = registerDto.email.toLowerCase().trim();
+    const { password, name, role } = registerDto;
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
@@ -57,7 +150,7 @@ export class AuthService {
       data: {
         email,
         password: hashedPassword,
-        name,
+        name: name.trim(),
         role: role || 'EVENTEE',
         authProvider: 'local',
       },
@@ -70,7 +163,8 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+    const email = loginDto.email.toLowerCase().trim();
+    const { password } = loginDto;
 
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -98,29 +192,42 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Google token');
     }
 
-    const email = payload.email;
+    const normalizedEmail = payload.email.toLowerCase().trim();
     const googleId = payload.sub;
-    const name = payload.name || email.split('@')[0];
+    const name = payload.name || normalizedEmail.split('@')[0];
 
-    let user = await this.prisma.user.findUnique({ where: { email } });
+    // Prefer googleId lookup so returning Google users never hit the signup path
+    let user = await this.prisma.user.findUnique({ where: { googleId } });
     let isNewUser = false;
+
+    if (!user) {
+      user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+    }
 
     if (!user) {
       isNewUser = true;
       user = await this.prisma.user.create({
         data: {
-          email,
+          email: normalizedEmail,
           name,
           googleId,
           authProvider: 'google',
           role: Role.EVENTEE,
         },
       });
-    } else if (!user.googleId) {
-      user = await this.prisma.user.update({
-        where: { id: user.id },
-        data: { googleId, authProvider: user.authProvider === 'local' ? 'google' : user.authProvider },
-      });
+    } else {
+      if (user.googleId && user.googleId !== googleId) {
+        throw new UnauthorizedException('This email is linked to a different Google account');
+      }
+      if (!user.googleId) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            googleId,
+            authProvider: user.authProvider === 'local' ? 'google' : user.authProvider,
+          },
+        });
+      }
     }
 
     if (isNewUser) {

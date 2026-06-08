@@ -14,49 +14,83 @@ exports.MailService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const resend_1 = require("resend");
+const mail_config_1 = require("./mail.config");
 const mail_templates_1 = require("./mail.templates");
 let MailService = MailService_1 = class MailService {
     configService;
     logger = new common_1.Logger(MailService_1.name);
     resend;
-    from;
     clientUrl;
     enabled;
+    legacyFrom;
     constructor(configService) {
         this.configService = configService;
         const apiKey = this.configService.get('RESEND_API_KEY');
-        this.from = this.configService.get('MAIL_FROM') || 'Eventful <onboarding@resend.dev>';
-        this.clientUrl = this.configService.get('CLIENT_URL') || 'http://localhost:5173';
+        this.legacyFrom =
+            this.configService.get('MAIL_FROM') ||
+                'Eventful <onboarding@resend.dev>';
+        this.clientUrl =
+            this.configService.get('CLIENT_URL') || 'http://localhost:5173';
         this.enabled = !!apiKey;
         this.resend = apiKey ? new resend_1.Resend(apiKey) : null;
         if (!this.enabled) {
             this.logger.warn('RESEND_API_KEY not set — emails will be logged only');
         }
     }
-    async send(to, subject, html) {
+    resolveFrom(sender) {
+        if (this.configService.get('MAIL_DOMAIN') || this.configService.get('MAIL_FROM_TRANSACTIONAL')) {
+            return (0, mail_config_1.resolveMailAddress)(this.configService, sender);
+        }
+        return { from: this.legacyFrom, replyTo: this.legacyFrom };
+    }
+    async send(to, subject, html, sender = 'transactional') {
+        const { from, replyTo } = this.resolveFrom(sender);
         if (!this.enabled || !this.resend) {
-            this.logger.log(`[DEV EMAIL] To: ${to} | Subject: ${subject}`);
+            this.logger.log(`[DEV EMAIL] From: ${from} | Reply-To: ${replyTo} | To: ${to} | Subject: ${subject}`);
             return;
         }
         try {
-            await this.resend.emails.send({ from: this.from, to, subject, html });
-            this.logger.log(`Email sent to ${to}: ${subject}`);
+            await this.resend.emails.send({
+                from,
+                to,
+                subject,
+                html,
+                replyTo,
+            });
+            this.logger.log(`Email sent to ${to} from ${from}: ${subject}`);
         }
         catch (err) {
             this.logger.error(`Failed to send email to ${to}`, err);
         }
     }
+    async sendOrThrow(to, subject, html, sender = 'transactional') {
+        const { from, replyTo } = this.resolveFrom(sender);
+        if (!this.enabled || !this.resend) {
+            throw new Error('RESEND_API_KEY is not configured');
+        }
+        await this.resend.emails.send({
+            from,
+            to,
+            subject,
+            html,
+            replyTo,
+        });
+        this.logger.log(`Email sent to ${to} from ${from}: ${subject}`);
+    }
     async sendWelcome(to, name) {
-        await this.send(to, 'Welcome to Eventful!', (0, mail_templates_1.welcomeEmail)(name, this.clientUrl));
+        await this.send(to, 'Welcome to Eventful!', (0, mail_templates_1.welcomeEmail)(name, this.clientUrl), 'personal');
     }
     async sendTicketConfirmed(to, name, event) {
-        await this.send(to, `Ticket Confirmed: ${event.title}`, (0, mail_templates_1.ticketConfirmedEmail)(name, { ...event, date: String(event.date) }, this.clientUrl));
+        await this.send(to, `Ticket Confirmed: ${event.title}`, (0, mail_templates_1.ticketConfirmedEmail)(name, { ...event, date: String(event.date) }, this.clientUrl), 'transactional');
     }
     async sendPaymentReceipt(to, name, amount, reference, eventTitle) {
-        await this.send(to, `Receipt from Eventful — ${eventTitle}`, (0, mail_templates_1.paymentReceiptEmail)(name, amount, reference, eventTitle, this.clientUrl));
+        await this.send(to, `Receipt from Eventful — ${eventTitle}`, (0, mail_templates_1.paymentReceiptEmail)(name, amount, reference, eventTitle, this.clientUrl), 'transactional');
     }
     async sendEventReminder(to, name, event) {
-        await this.send(to, `Reminder: ${event.title} is coming up`, (0, mail_templates_1.eventReminderEmail)(name, { ...event, date: String(event.date) }, this.clientUrl));
+        await this.send(to, `Reminder: ${event.title} is coming up`, (0, mail_templates_1.eventReminderEmail)(name, { ...event, date: String(event.date) }, this.clientUrl), 'transactional');
+    }
+    async sendDomainTest(to, name) {
+        await this.sendOrThrow(to, 'Eventful — custom domain email test', (0, mail_templates_1.domainTestEmail)(name, this.clientUrl), 'transactional');
     }
 };
 exports.MailService = MailService;

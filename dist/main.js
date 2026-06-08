@@ -1,5 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = require("dotenv");
+const path_1 = require("path");
+if (process.env.NODE_ENV !== 'production') {
+    (0, dotenv_1.config)({ path: (0, path_1.resolve)(process.cwd(), '.env'), override: true });
+}
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
@@ -42,7 +47,16 @@ async function bootstrap() {
     });
     const port = process.env.PORT || 3000;
     await app.listen(port);
+    const dbHost = (() => {
+        try {
+            return new URL(process.env.DATABASE_URL || '').host;
+        }
+        catch {
+            return 'unknown';
+        }
+    })();
     console.log(`🚀 Eventful Backend is running on: http://localhost:${port}`);
+    console.log(`🗄️  Database host: ${dbHost}`);
     console.log(`📚 Swagger Documentation is available on: http://localhost:${port}/api-docs`);
 }
 bootstrap();

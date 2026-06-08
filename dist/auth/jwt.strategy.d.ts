@@ -12,7 +12,7 @@ export declare class JwtStrategy extends JwtStrategy_base {
     }): Promise<{
         email: string;
         name: string;
-        role: import("@prisma/client").$Enums.Role;
+        role: import(".prisma/client").$Enums.Role;
         id: string;
         googleId: string | null;
         authProvider: string;

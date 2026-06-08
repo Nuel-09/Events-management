@@ -28,12 +28,15 @@ let NotificationService = class NotificationService {
         if (!event) {
             throw new common_1.NotFoundException('Event not found');
         }
-        const triggerTime = new Date(triggerTimeStr);
+        const triggerTime = this.normalizeTriggerTime(new Date(triggerTimeStr));
+        if (Number.isNaN(triggerTime.getTime())) {
+            throw new common_1.BadRequestException('Invalid reminder date and time');
+        }
         if (triggerTime.getTime() <= Date.now()) {
-            throw new common_1.BadRequestException('Reminder trigger time must be in the future');
+            throw new common_1.BadRequestException('Reminder time must be in the future');
         }
         if (triggerTime.getTime() >= new Date(event.date).getTime()) {
-            throw new common_1.BadRequestException('Reminder trigger time must be before the event start time');
+            throw new common_1.BadRequestException('Reminder time must be before the event starts');
         }
         const ticket = await this.prisma.ticket.findFirst({
             where: {
@@ -43,28 +46,29 @@ let NotificationService = class NotificationService {
             },
         });
         if (!ticket) {
-            throw new common_1.ForbiddenException('You must purchase a ticket to set a custom reminder for this event');
+            throw new common_1.ForbiddenException('You must have a paid ticket to set a reminder for this event');
         }
-        const reminder = await this.prisma.reminder.upsert({
-            where: {
-                userId_eventId_triggerTime: {
-                    userId,
-                    eventId,
-                    triggerTime,
-                },
-            },
-            create: {
-                userId,
-                eventId,
-                triggerTime,
-            },
-            update: { sent: false },
+        const existing = await this.prisma.reminder.findFirst({
+            where: { userId, eventId, triggerTime },
         });
+        const reminder = existing
+            ? await this.prisma.reminder.update({
+                where: { id: existing.id },
+                data: { sent: false },
+            })
+            : await this.prisma.reminder.create({
+                data: { userId, eventId, triggerTime },
+            });
         return {
-            message: 'Custom reminder scheduled successfully',
+            message: 'Reminder scheduled successfully',
             reminderId: reminder.id,
             triggerTime: reminder.triggerTime,
         };
+    }
+    normalizeTriggerTime(date) {
+        const normalized = new Date(date);
+        normalized.setSeconds(0, 0);
+        return normalized;
     }
     async handleRemindersCron() {
         const now = new Date();

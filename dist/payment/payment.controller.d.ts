@@ -9,44 +9,61 @@ export declare class PaymentController {
         isFree: boolean;
         redirectUrl: any;
     }>;
-    verifyPayment(reference: string): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        eventId: string;
-        paymentReference: string;
-        status: import("@prisma/client").$Enums.TicketStatus;
-        verificationToken: string;
-        qrCodeUrl: string | null;
-        scanned: boolean;
-        scannedAt: Date | null;
-        userId: string;
-    }>;
-    getCreatorPayments(creatorId: string): Promise<({
-        user: {
-            email: string;
-            name: string;
-            id: string;
-        };
+    verifyPayment(reference: string, userId: string): Promise<({
         event: {
-            title: string;
             id: string;
+            title: string;
+            date: Date;
+            location: string;
             price: number;
         };
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        eventId: string;
         paymentReference: string;
-        status: import("@prisma/client").$Enums.TicketStatus;
+        status: import(".prisma/client").$Enums.TicketStatus;
         verificationToken: string;
         qrCodeUrl: string | null;
         scanned: boolean;
         scannedAt: Date | null;
+        eventId: string;
+        userId: string;
+    }) | null>;
+    getCreatorPayments(creatorId: string): Promise<({
+        event: {
+            id: string;
+            title: string;
+            price: number;
+        };
+        user: {
+            email: string;
+            id: string;
+            name: string;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        paymentReference: string;
+        status: import(".prisma/client").$Enums.TicketStatus;
+        verificationToken: string;
+        qrCodeUrl: string | null;
+        scanned: boolean;
+        scannedAt: Date | null;
+        eventId: string;
         userId: string;
     })[]>;
     handleWebhook(req: any, signature: string): Promise<{
         status: string;
+    }>;
+    reconcilePending(): Promise<{
+        processed: number;
+        fulfilled: number;
+        results: {
+            reference: string;
+            status: string;
+            error?: string;
+        }[];
     }>;
 }

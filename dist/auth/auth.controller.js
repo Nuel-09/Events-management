@@ -18,6 +18,9 @@ const auth_service_1 = require("./auth.service");
 const register_dto_1 = require("./dto/register.dto");
 const login_dto_1 = require("./dto/login.dto");
 const google_auth_dto_1 = require("./dto/google-auth.dto");
+const update_profile_dto_1 = require("./dto/update-profile.dto");
+const jwt_auth_guard_1 = require("./jwt-auth.guard");
+const current_user_decorator_1 = require("./current-user.decorator");
 const swagger_1 = require("@nestjs/swagger");
 let AuthController = class AuthController {
     authService;
@@ -32,6 +35,18 @@ let AuthController = class AuthController {
     }
     async googleLogin(dto) {
         return this.authService.googleLogin(dto);
+    }
+    getMe(userId) {
+        return this.authService.getProfile(userId);
+    }
+    updateMe(userId, dto) {
+        return this.authService.updateProfile(userId, dto);
+    }
+    deleteMe(userId) {
+        return this.authService.deleteAccount(userId);
+    }
+    sendTestEmail(userId) {
+        return this.authService.sendTestEmail(userId);
     }
 };
 exports.AuthController = AuthController;
@@ -67,6 +82,54 @@ __decorate([
     __metadata("design:paramtypes", [google_auth_dto_1.GoogleAuthDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleLogin", null);
+__decorate([
+    (0, common_1.Get)('me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get the currently authenticated user profile' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns the current user.' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized.' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "getMe", null);
+__decorate([
+    (0, common_1.Patch)('me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Update the current user profile' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Profile updated.' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_profile_dto_1.UpdateProfileDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "updateMe", null);
+__decorate([
+    (0, common_1.Delete)('me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete the current user account' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Account deleted.' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "deleteMe", null);
+__decorate([
+    (0, common_1.Post)('me/test-email'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Send a test email to verify custom domain / Resend setup' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Test email queued.' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "sendTestEmail", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
     (0, common_1.Controller)('auth'),

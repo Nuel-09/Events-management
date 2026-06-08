@@ -48,6 +48,20 @@ export const Navbar: React.FC = () => {
               <span>Explore Events</span>
             </Link>
 
+            {isAuthenticated && (
+              <Link
+                to="/profile"
+                className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/profile')
+                    ? 'bg-accent text-accent-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                }`}
+              >
+                <UserIcon className="h-4 w-4" />
+                <span>Profile</span>
+              </Link>
+            )}
+
             {isAuthenticated && user?.role === 'EVENTEE' && (
                 <Link
                   to="/tickets"
@@ -89,19 +103,25 @@ export const Navbar: React.FC = () => {
               {resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
             {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 rounded-full bg-muted px-3 py-1 border border-border">
-                  <UserIcon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs font-semibold text-foreground max-w-[120px] truncate">{user?.name}</span>
-                  <span className="rounded bg-indigo-950 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-indigo-400">
-                    {user?.role}
-                  </span>
-                </div>
+              <div className="flex items-center space-x-3">
+                <Link to="/profile">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground hidden lg:flex items-center gap-1.5"
+                  >
+                    <UserIcon className="h-4 w-4" />
+                    <span className="max-w-[100px] truncate">{user?.name}</span>
+                  </Button>
+                </Link>
+                <span className="rounded bg-indigo-600/15 border border-indigo-500/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-indigo-500">
+                  {user?.role}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="text-zinc-400 hover:text-red-400 hover:bg-red-500/10 flex items-center space-x-1"
+                  className="text-muted-foreground hover:text-red-500 hover:bg-red-500/10 flex items-center space-x-1"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Logout</span>
@@ -110,7 +130,7 @@ export const Navbar: React.FC = () => {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link to="/login">
-                  <Button variant="ghost" className="text-zinc-300 hover:text-white hover:bg-zinc-900">
+                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent">
                     Login
                   </Button>
                 </Link>
@@ -123,8 +143,23 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile actions: theme toggle + menu */}
-          <div className="flex md:hidden items-center gap-1">
+          {/* Mobile actions: profile + theme + menu */}
+          <div className="flex md:hidden items-center gap-0.5">
+            {isAuthenticated && (
+              <Link to="/profile" aria-label="Profile">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`h-10 w-10 ${
+                    isActive('/profile')
+                      ? 'text-indigo-500 bg-accent'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  }`}
+                >
+                  <UserIcon className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -149,12 +184,12 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-zinc-800 bg-zinc-950 px-2 pt-2 pb-4 space-y-1">
+        <div className="md:hidden border-t border-border bg-background px-2 pt-2 pb-4 space-y-1">
           <Link
             to="/events"
             onClick={() => setIsOpen(false)}
             className={`flex items-center space-x-2 px-3 py-2.5 rounded-md text-base font-medium ${
-              isActive('/events') ? 'bg-zinc-900 text-white' : 'text-zinc-400'
+              isActive('/events') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
             }`}
           >
             <Compass className="h-5 w-5" />
@@ -163,12 +198,23 @@ export const Navbar: React.FC = () => {
 
           {isAuthenticated && (
             <>
+              <Link
+                to="/profile"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center space-x-2 px-3 py-2.5 rounded-md text-base font-medium ${
+                  isActive('/profile') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                <UserIcon className="h-5 w-5" />
+                <span>Profile</span>
+              </Link>
+
               {user?.role === 'EVENTEE' && (
                 <Link
                   to="/tickets"
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center space-x-2 px-3 py-2.5 rounded-md text-base font-medium ${
-                    isActive('/tickets') ? 'bg-zinc-900 text-white' : 'text-zinc-400'
+                    isActive('/tickets') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <Ticket className="h-5 w-5" />
@@ -181,7 +227,7 @@ export const Navbar: React.FC = () => {
                   to="/dashboard"
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center space-x-2 px-3 py-2.5 rounded-md text-base font-medium ${
-                    isActive('/dashboard') ? 'bg-zinc-900 text-white' : 'text-zinc-400'
+                    isActive('/dashboard') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <LayoutDashboard className="h-5 w-5" />
@@ -189,12 +235,12 @@ export const Navbar: React.FC = () => {
                 </Link>
               )}
 
-              <div className="pt-4 pb-2 border-t border-zinc-800 mt-4 px-3 flex items-center justify-between">
+              <div className="pt-4 pb-2 border-t border-border mt-4 px-3 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-white">{user?.name}</p>
-                  <p className="text-xs text-zinc-400">{user?.email}</p>
+                  <p className="text-sm font-semibold text-foreground">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
-                <span className="rounded bg-indigo-950 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+                <span className="rounded bg-indigo-600/15 border border-indigo-500/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-500">
                   {user?.role}
                 </span>
               </div>
@@ -218,7 +264,7 @@ export const Navbar: React.FC = () => {
           {!isAuthenticated && (
             <div className="space-y-2 px-3 pt-2">
               <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full">
-                <Button variant="outline" className="w-full border-zinc-800 text-zinc-300 bg-transparent hover:bg-zinc-900">
+                <Button variant="outline" className="w-full border-border text-muted-foreground bg-transparent hover:bg-accent">
                   Login
                 </Button>
               </Link>

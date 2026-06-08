@@ -64,6 +64,7 @@ export class PaymentService {
 
     try {
       const amountInKobo = Math.round(event.price * 100);
+      const callbackUrl = `${this.clientUrl}/payment-callback?eventId=${event.id}`;
       const response = await axios.post(
         `${this.paystackUrl}/transaction/initialize`,
         {
@@ -71,6 +72,7 @@ export class PaymentService {
           amount: amountInKobo,
           currency: 'NGN',
           reference,
+          callback_url: callbackUrl,
           metadata: {
             ticketId: ticket.id,
             eventId: event.id,
@@ -114,14 +116,24 @@ export class PaymentService {
     return { status: 'success' };
   }
 
-  async verifyAndFulfillByReference(reference: string) {
+  async verifyAndFulfillByReference(reference: string, userId?: string) {
+    const normalizedReference = decodeURIComponent(reference).trim();
+
     const ticket = await this.prisma.ticket.findUnique({
-      where: { paymentReference: reference },
-      include: { event: true },
+      where: { paymentReference: normalizedReference },
+      include: {
+        event: {
+          select: { id: true, title: true, date: true, location: true, price: true },
+        },
+      },
     });
 
     if (!ticket) {
-      throw new NotFoundException('Ticket with this reference not found');
+      throw new NotFoundException('Payment reference not found');
+    }
+
+    if (userId && ticket.userId !== userId) {
+      throw new BadRequestException('This payment reference does not belong to your account');
     }
 
     if (ticket.status === 'PAID') {
@@ -136,11 +148,22 @@ export class PaymentService {
       );
 
       if (response.data && response.data.status && response.data.data.status === 'success') {
-        return await this.fulfillTicket(ticket.id);
+        await this.fulfillTicket(ticket.id);
+        return this.prisma.ticket.findUnique({
+          where: { paymentReference: reference },
+          include: {
+            event: {
+              select: { id: true, title: true, date: true, location: true, price: true },
+            },
+          },
+        });
       } else {
         throw new BadRequestException('Transaction was not successful on Paystack');
       }
     } catch (error: any) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
       const errMsg = error.response?.data?.message || error.message;
       throw new BadRequestException(`Paystack Verification Error: ${errMsg}`);
     }
@@ -201,21 +224,23 @@ export class PaymentService {
       }
 
       if (triggerTime.getTime() > Date.now()) {
-        await tx.reminder.upsert({
+        const existingReminder = await tx.reminder.findFirst({
           where: {
-            userId_eventId_triggerTime: {
-              userId: ticket.userId,
-              eventId: event.id,
-              triggerTime,
-            },
-          },
-          create: {
             userId: ticket.userId,
             eventId: event.id,
             triggerTime,
           },
-          update: {},
         });
+
+        if (!existingReminder) {
+          await tx.reminder.create({
+            data: {
+              userId: ticket.userId,
+              eventId: event.id,
+              triggerTime,
+            },
+          });
+        }
       }
 
       return updated;
@@ -256,5 +281,36 @@ export class PaymentService {
       },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  /** Dev/recovery: verify all PENDING tickets against Paystack and fulfill successful ones. */
+  async reconcilePendingPayments(limit = 50) {
+    const pending = await this.prisma.ticket.findMany({
+      where: { status: 'PENDING' },
+      select: { paymentReference: true },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+    });
+
+    const results: Array<{ reference: string; status: string; error?: string }> = [];
+
+    for (const ticket of pending) {
+      try {
+        await this.verifyAndFulfillByReference(ticket.paymentReference);
+        results.push({ reference: ticket.paymentReference, status: 'fulfilled' });
+      } catch (err: any) {
+        results.push({
+          reference: ticket.paymentReference,
+          status: 'skipped',
+          error: err?.message || 'Verification failed',
+        });
+      }
+    }
+
+    return {
+      processed: results.length,
+      fulfilled: results.filter((r) => r.status === 'fulfilled').length,
+      results,
+    };
   }
 }

@@ -30,8 +30,8 @@ let PaymentController = class PaymentController {
     async initializePayment(dto, userId, email) {
         return this.paymentService.initializePayment(userId, email, dto);
     }
-    async verifyPayment(reference) {
-        return this.paymentService.verifyAndFulfillByReference(reference);
+    async verifyPayment(reference, userId) {
+        return this.paymentService.verifyAndFulfillByReference(reference, userId);
     }
     async getCreatorPayments(creatorId) {
         return this.paymentService.getCreatorPaymentDetails(creatorId);
@@ -39,6 +39,12 @@ let PaymentController = class PaymentController {
     async handleWebhook(req, signature) {
         const rawBody = req.rawBody ? req.rawBody.toString('utf8') : '';
         return this.paymentService.verifyPaystackWebhook(rawBody, signature);
+    }
+    reconcilePending() {
+        if (process.env.NODE_ENV === 'production') {
+            throw new common_1.ForbiddenException('Not available in production');
+        }
+        return this.paymentService.reconcilePendingPayments();
     }
 };
 exports.PaymentController = PaymentController;
@@ -64,8 +70,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Manually verify transaction status via Paystack API' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Verification results (completes ticket fulfillment on success).' }),
     __param(0, (0, common_1.Param)('reference')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], PaymentController.prototype, "verifyPayment", null);
 __decorate([
@@ -91,6 +98,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], PaymentController.prototype, "handleWebhook", null);
+__decorate([
+    (0, common_1.Post)('reconcile-pending'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Development only — verify all PENDING tickets with Paystack and fulfill successful payments',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PaymentController.prototype, "reconcilePending", null);
 exports.PaymentController = PaymentController = __decorate([
     (0, swagger_1.ApiTags)('Payments'),
     (0, common_1.Controller)('payments'),

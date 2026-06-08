@@ -16,13 +16,13 @@ export declare class TicketController {
         createdAt: Date;
         updatedAt: Date;
         eventId: string;
+        userId: string;
         paymentReference: string;
-        status: import("@prisma/client").$Enums.TicketStatus;
+        status: import(".prisma/client").$Enums.TicketStatus;
         verificationToken: string;
         qrCodeUrl: string | null;
         scanned: boolean;
         scannedAt: Date | null;
-        userId: string;
     })[]>;
     verifyTicket(dto: VerifyTicketDto, creatorId: string): Promise<{
         message: string;
@@ -56,12 +56,12 @@ export declare class TicketController {
         createdAt: Date;
         updatedAt: Date;
         eventId: string;
+        userId: string;
         paymentReference: string;
-        status: import("@prisma/client").$Enums.TicketStatus;
+        status: import(".prisma/client").$Enums.TicketStatus;
         verificationToken: string;
         qrCodeUrl: string | null;
         scanned: boolean;
         scannedAt: Date | null;
-        userId: string;
     }>;
 }

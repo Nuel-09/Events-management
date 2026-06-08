@@ -3,11 +3,13 @@ export declare class MailService {
     private configService;
     private readonly logger;
     private readonly resend;
-    private readonly from;
     private readonly clientUrl;
     private readonly enabled;
+    private readonly legacyFrom;
     constructor(configService: ConfigService);
+    private resolveFrom;
     private send;
+    private sendOrThrow;
     sendWelcome(to: string, name: string): Promise<void>;
     sendTicketConfirmed(to: string, name: string, event: {
         title: string;
@@ -21,4 +23,5 @@ export declare class MailService {
         date: Date | string;
         location: string;
     }): Promise<void>;
+    sendDomainTest(to: string, name: string): Promise<void>;
 }

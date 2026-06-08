@@ -48,13 +48,13 @@ export declare class EventController {
             createdAt: Date;
             updatedAt: Date;
             eventId: string;
+            userId: string;
             paymentReference: string;
-            status: import("@prisma/client").$Enums.TicketStatus;
+            status: import(".prisma/client").$Enums.TicketStatus;
             verificationToken: string;
             qrCodeUrl: string | null;
             scanned: boolean;
             scannedAt: Date | null;
-            userId: string;
         })[];
     } & {
         description: string;

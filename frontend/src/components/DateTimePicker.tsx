@@ -31,10 +31,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(() => parseInput(value) || new Date());
   const [timeValue, setTimeValue] = useState(() => format(parseInput(value) || new Date(), 'HH:mm'));
-  const [typedValue, setTypedValue] = useState(value);
 
   useEffect(() => {
-    setTypedValue(value);
     const parsed = parseInput(value);
     if (parsed) {
       setSelectedDate(parsed);
@@ -47,7 +45,6 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     const combined = new Date(date);
     combined.setHours(hours || 0, minutes || 0, 0, 0);
     onChange(toLocalDatetimeValue(combined));
-    setTypedValue(toLocalDatetimeValue(combined));
   };
 
   const handleDateSelect = (day: Date) => {
@@ -60,15 +57,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     emitChange(selectedDate, time);
   };
 
-  const handleTypedChange = (raw: string) => {
-    setTypedValue(raw);
-    const parsed = parseInput(raw);
-    if (parsed) {
-      setSelectedDate(parsed);
-      setTimeValue(format(parsed, 'HH:mm'));
-      onChange(raw);
-    }
-  };
+  const displayValue = (() => {
+    const parsed = parseInput(value);
+    return parsed ? format(parsed, 'dd/MM/yyyy HH:mm') : '';
+  })();
 
   const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
   const startDay = monthStart.getDay();
@@ -90,16 +82,18 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       <div className="flex gap-2">
         <Input
           id={id}
-          type="datetime-local"
-          value={typedValue}
-          onChange={(e) => handleTypedChange(e.target.value)}
-          className="bg-background border-border text-foreground flex-1"
+          readOnly
+          value={displayValue}
+          placeholder="Select date and time"
+          onClick={() => setOpen(true)}
+          className="bg-background border-border text-foreground flex-1 cursor-pointer"
         />
         <Button
           type="button"
           variant="outline"
           className="border-border shrink-0"
-          onClick={() => setOpen(!open)}
+          aria-label="Open date and time picker"
+          onClick={() => setOpen((prev) => !prev)}
         >
           <CalendarIcon className="h-4 w-4" />
         </Button>
@@ -108,11 +102,15 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       {open && (
         <div className="rounded-lg border border-border bg-card p-3 shadow-lg space-y-3">
           <div className="flex items-center justify-between">
-            <Button type="button" variant="ghost" size="sm" onClick={() => shiftMonth(-1)}>‹</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => shiftMonth(-1)}>
+              ‹
+            </Button>
             <span className="text-sm font-semibold text-foreground">
               {format(selectedDate, 'MMMM yyyy')}
             </span>
-            <Button type="button" variant="ghost" size="sm" onClick={() => shiftMonth(1)}>›</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => shiftMonth(1)}>
+              ›
+            </Button>
           </div>
           <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
@@ -148,6 +146,14 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               className="bg-background border-border text-foreground"
             />
           </div>
+          <Button
+            type="button"
+            size="sm"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+            onClick={() => setOpen(false)}
+          >
+            Done
+          </Button>
         </div>
       )}
     </div>

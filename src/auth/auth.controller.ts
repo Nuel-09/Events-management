@@ -1,9 +1,12 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { CurrentUser } from './current-user.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -34,5 +37,44 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid Google token.' })
   async googleLogin(@Body() dto: GoogleAuthDto) {
     return this.authService.googleLogin(dto);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get the currently authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'Returns the current user.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  getMe(@CurrentUser('id') userId: string) {
+    return this.authService.getProfile(userId);
+  }
+
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update the current user profile' })
+  @ApiResponse({ status: 200, description: 'Profile updated.' })
+  updateMe(@CurrentUser('id') userId: string, @Body() dto: UpdateProfileDto) {
+    return this.authService.updateProfile(userId, dto);
+  }
+
+  @Delete('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete the current user account' })
+  @ApiResponse({ status: 200, description: 'Account deleted.' })
+  deleteMe(@CurrentUser('id') userId: string) {
+    return this.authService.deleteAccount(userId);
+  }
+
+  @Post('me/test-email')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send a test email to verify custom domain / Resend setup' })
+  @ApiResponse({ status: 200, description: 'Test email queued.' })
+  sendTestEmail(@CurrentUser('id') userId: string) {
+    return this.authService.sendTestEmail(userId);
   }
 }

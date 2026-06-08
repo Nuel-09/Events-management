@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
@@ -22,6 +22,7 @@ interface Event {
 export const EventDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated } = useAuth();
   
   const [event, setEvent] = useState<Event | null>(null);
@@ -29,6 +30,15 @@ export const EventDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [paymentSuccessMsg, setPaymentSuccessMsg] = useState(false);
+
+  useEffect(() => {
+    const state = location.state as { paymentSuccess?: boolean };
+    if (state?.paymentSuccess) {
+      setPaymentSuccessMsg(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -100,7 +110,7 @@ export const EventDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-zinc-950 text-white">
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-background text-foreground">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
       </div>
     );
@@ -108,7 +118,7 @@ export const EventDetails: React.FC = () => {
 
   if (!event) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-white bg-zinc-950 min-h-[calc(100vh-4rem)]">
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-foreground bg-background min-h-[calc(100vh-4rem)]">
         <AlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" />
         <h2 className="text-2xl font-bold">Event Not Found</h2>
         <p className="text-zinc-500 mt-2">The event details you are looking for does not exist or was deleted.</p>
@@ -132,6 +142,15 @@ export const EventDetails: React.FC = () => {
         <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
         <span className="text-sm font-medium">Back to Events</span>
       </Link>
+
+      {paymentSuccessMsg && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-600 dark:text-emerald-400">
+          <CheckCircle2 className="h-5 w-5 shrink-0" />
+          <span>
+            Payment successful! Your ticket is confirmed — check <Link to="/tickets" className="font-semibold underline">My Tickets</Link> for your QR code.
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left Column: Details */}

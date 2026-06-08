@@ -78,19 +78,37 @@ export const MyTickets: React.FC = () => {
   const handleScheduleReminder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reminderTicket) return;
-    
+
+    if (!customTriggerTime) {
+      setScheduleError('Please select a reminder date and time.');
+      return;
+    }
+
+    const triggerDate = new Date(customTriggerTime);
+    const eventDate = new Date(reminderTicket.event.date);
+
+    if (triggerDate.getTime() <= Date.now()) {
+      setScheduleError('Reminder time must be in the future.');
+      return;
+    }
+
+    if (triggerDate.getTime() >= eventDate.getTime()) {
+      setScheduleError('Reminder time must be before the event starts.');
+      return;
+    }
+
     setScheduling(true);
     setScheduleError(null);
     setScheduleSuccess(false);
 
     try {
       await api.post(`/events/${reminderTicket.event.id}/reminders`, {
-        triggerTime: new Date(customTriggerTime).toISOString(),
+        triggerTime: triggerDate.toISOString(),
       });
       setScheduleSuccess(true);
       setTimeout(() => {
         setReminderTicket(null);
-      }, 1500);
+      }, 2500);
     } catch (err: any) {
       setScheduleError(err.response?.data?.message || 'Failed to schedule reminder');
     } finally {
@@ -111,30 +129,30 @@ export const MyTickets: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-zinc-950 text-white">
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-background text-foreground">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 bg-zinc-950 text-white min-h-[calc(100vh-4rem)]">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 bg-background text-foreground min-h-[calc(100vh-4rem)]">
       <div className="flex items-center space-x-3 mb-8">
         <Ticket className="h-8 w-8 text-indigo-500" />
-        <h1 className="text-3xl font-bold tracking-tight text-white m-0">My Tickets</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground m-0">My Tickets</h1>
       </div>
 
       {error ? (
-        <div className="text-center py-12 border border-zinc-800/60 rounded-xl bg-zinc-900/20 max-w-lg mx-auto">
+        <div className="text-center py-12 border border-border/60 rounded-xl bg-muted max-w-lg mx-auto">
           <p className="text-red-400 font-semibold">{error}</p>
-          <Button onClick={fetchTickets} className="mt-4 bg-zinc-800 text-zinc-300 hover:bg-zinc-700">
+          <Button onClick={fetchTickets} className="mt-4 bg-accent text-muted-foreground hover:bg-zinc-700">
             Retry
           </Button>
         </div>
       ) : tickets.length === 0 ? (
-        <div className="text-center py-20 border border-dashed border-zinc-800 rounded-xl bg-zinc-900/10 max-w-lg mx-auto">
+        <div className="text-center py-20 border border-dashed border-border rounded-xl bg-muted/50 max-w-lg mx-auto">
           <Ticket className="mx-auto h-12 w-12 text-zinc-700 mb-4" />
-          <h3 className="text-lg font-semibold text-zinc-300">No tickets booked</h3>
+          <h3 className="text-lg font-semibold text-muted-foreground">No tickets booked</h3>
           <p className="text-zinc-500 text-sm mt-1 max-w-sm mx-auto mb-6">
             You haven't purchased any tickets yet. Explore upcoming concerts and gatherings to book yours!
           </p>
@@ -152,7 +170,7 @@ export const MyTickets: React.FC = () => {
             return (
               <Card
                 key={ticket.id}
-                className={`border-zinc-800 bg-zinc-900/40 text-white shadow-lg overflow-hidden flex flex-col justify-between relative border-l-4 ${
+                className={`border-border bg-card text-card-foreground shadow-lg overflow-hidden flex flex-col justify-between relative border-l-4 ${
                   isScanned ? 'border-l-zinc-700 opacity-70' : 'border-l-indigo-600'
                 }`}
               >
@@ -160,7 +178,7 @@ export const MyTickets: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono text-zinc-500">REF: {ticket.paymentReference}</span>
                     {isScanned ? (
-                      <span className="rounded bg-zinc-800 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1 border border-zinc-700">
+                      <span className="rounded bg-accent px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground flex items-center space-x-1 border border-border">
                         <span>Scanned</span>
                       </span>
                     ) : (
@@ -174,7 +192,7 @@ export const MyTickets: React.FC = () => {
                     {ticket.event.title}
                   </h3>
 
-                  <div className="space-y-1.5 text-xs text-zinc-400">
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
                       <span>{formatDate(ticket.event.date)}</span>
@@ -186,13 +204,13 @@ export const MyTickets: React.FC = () => {
                   </div>
                 </CardContent>
 
-                <CardFooter className="px-5 pb-5 pt-0 border-t border-zinc-800/40 flex items-center justify-between gap-2">
+                <CardFooter className="px-5 pb-5 pt-0 border-t border-border/40 flex items-center justify-between gap-2">
                   {/* Show QR code button */}
                   <Button
                     onClick={() => setActiveQrTicket(ticket)}
                     variant="outline"
                     size="sm"
-                    className="border-zinc-800 hover:bg-zinc-900 hover:text-white bg-transparent flex-1 text-zinc-300 mt-4 font-semibold text-xs flex items-center justify-center space-x-1"
+                    className="border-border hover:bg-accent hover:text-foreground bg-transparent flex-1 text-muted-foreground mt-4 font-semibold text-xs flex items-center justify-center space-x-1"
                   >
                     <QrCode className="h-3.5 w-3.5" />
                     <span>View QR Code</span>
@@ -204,7 +222,7 @@ export const MyTickets: React.FC = () => {
                       onClick={() => handleOpenReminder(ticket)}
                       variant="ghost"
                       size="sm"
-                      className="text-zinc-400 hover:text-white hover:bg-zinc-900 mt-4 font-semibold text-xs flex items-center justify-center space-x-1"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent mt-4 font-semibold text-xs flex items-center justify-center space-x-1"
                     >
                       <Bell className="h-3.5 w-3.5 text-indigo-500" />
                       <span>Remind Me</span>
@@ -219,17 +237,17 @@ export const MyTickets: React.FC = () => {
 
       {/* 1. QR Code Dialog Modal */}
       <Dialog open={activeQrTicket !== null} onOpenChange={(open) => !open && setActiveQrTicket(null)}>
-        <DialogContent className="border-zinc-800 bg-zinc-900 text-white max-w-sm text-center">
+        <DialogContent className="border-border bg-card text-card-foreground max-w-sm text-center">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white">{activeQrTicket?.event?.title}</DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-muted-foreground">
               Pass Verification Gate QR Code
             </DialogDescription>
           </DialogHeader>
 
           {activeQrTicket && (
             <div className="space-y-4 py-4">
-              <div className="mx-auto w-44 h-44 bg-white p-2 rounded-xl shadow-lg border border-zinc-800 flex items-center justify-center">
+              <div className="mx-auto w-44 h-44 bg-white p-2 rounded-xl shadow-lg border border-border flex items-center justify-center">
                 <img
                   src={activeQrTicket.qrCodeUrl}
                   alt="Ticket QR Code"
@@ -237,14 +255,14 @@ export const MyTickets: React.FC = () => {
                 />
               </div>
 
-              <div className="rounded-lg bg-zinc-950 border border-zinc-800/60 p-3 text-left space-y-1 text-xs">
+              <div className="rounded-lg bg-muted border border-border/60 p-3 text-left space-y-1 text-xs">
                 <div className="flex justify-between">
                   <span className="text-zinc-600">Ticket ID:</span>
-                  <span className="font-mono text-zinc-300">{activeQrTicket.id}</span>
+                  <span className="font-mono text-muted-foreground">{activeQrTicket.id}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-600">Venue:</span>
-                  <span className="text-zinc-300 truncate max-w-[180px]">{activeQrTicket.event.location}</span>
+                  <span className="text-muted-foreground truncate max-w-[180px]">{activeQrTicket.event.location}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-600">Gate Status:</span>
@@ -266,13 +284,13 @@ export const MyTickets: React.FC = () => {
 
       {/* 2. Custom Reminder Scheduler Dialog Modal */}
       <Dialog open={reminderTicket !== null} onOpenChange={(open) => !open && setReminderTicket(null)}>
-        <DialogContent className="border-zinc-800 bg-zinc-900 text-white max-w-sm">
+        <DialogContent className="border-border bg-card text-card-foreground max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2 text-white">
               <Bell className="h-5 w-5 text-indigo-500" />
               <span>Set Custom Reminder</span>
             </DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-muted-foreground">
               Choose a custom date and time to receive an email alert before this event starts.
             </DialogDescription>
           </DialogHeader>
@@ -282,7 +300,10 @@ export const MyTickets: React.FC = () => {
               <div className="mx-auto h-12 w-12 text-emerald-400 bg-emerald-500/10 rounded-full flex items-center justify-center">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <p className="text-sm font-semibold">Custom Reminder Scheduled!</p>
+              <p className="text-sm font-semibold">Reminder scheduled!</p>
+              <p className="text-xs text-muted-foreground px-4">
+                You will receive an email at your chosen time with event details and a link to your ticket.
+              </p>
             </div>
           ) : (
             <form onSubmit={handleScheduleReminder} className="space-y-4 py-3">
@@ -311,13 +332,13 @@ export const MyTickets: React.FC = () => {
                     type="button"
                     variant="outline"
                     onClick={() => setReminderTicket(null)}
-                    className="border-zinc-800 text-zinc-400 bg-transparent hover:bg-zinc-950"
+                    className="border-border text-muted-foreground bg-transparent hover:bg-muted"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    disabled={scheduling}
+                    disabled={scheduling || !customTriggerTime}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
                   >
                     {scheduling ? 'Scheduling...' : 'Set Reminder'}

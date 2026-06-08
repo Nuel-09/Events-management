@@ -202,19 +202,19 @@ export const CreatorDashboard: React.FC = () => {
 
   if (loading && !stats) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-zinc-950 text-white">
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-background text-foreground">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 bg-zinc-950 text-white min-h-[calc(100vh-4rem)]">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 bg-background text-foreground min-h-[calc(100vh-4rem)]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex items-center space-x-3">
           <LayoutDashboard className="h-8 w-8 text-indigo-500" />
-          <h1 className="text-3xl font-bold tracking-tight text-white m-0">Creator Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground m-0">Creator Dashboard</h1>
         </div>
         <Button onClick={handleOpenCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white h-11 px-5 rounded-lg flex items-center space-x-2">
           <Plus className="h-5 w-5" />
@@ -223,30 +223,30 @@ export const CreatorDashboard: React.FC = () => {
       </div>
 
       {error ? (
-        <div className="text-center py-12 border border-zinc-800/60 rounded-xl bg-zinc-900/20 max-w-lg mx-auto">
+        <div className="text-center py-12 border border-border/60 rounded-xl bg-muted max-w-lg mx-auto">
           <p className="text-red-400 font-semibold">{error}</p>
-          <Button onClick={loadDashboardData} className="mt-4 bg-zinc-800 text-zinc-300 hover:bg-zinc-700">
+          <Button onClick={loadDashboardData} className="mt-4 bg-accent text-muted-foreground hover:bg-accent/80">
             Retry
           </Button>
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-8">
-          <TabsList className="flex h-auto w-full flex-row flex-wrap justify-start gap-1 bg-zinc-900 border border-zinc-800/80 rounded-lg p-1.5">
+          <TabsList className="flex h-auto w-full flex-row flex-wrap justify-start gap-1 bg-muted border border-border rounded-lg p-1.5">
             <TabsTrigger
               value="analytics"
-              className="flex-none px-4 py-2 data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-300 hover:text-white"
+              className="flex-none px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground hover:text-foreground"
             >
               Analytics Summary
             </TabsTrigger>
             <TabsTrigger
               value="events"
-              className="flex-none px-4 py-2 data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-300 hover:text-white"
+              className="flex-none px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground hover:text-foreground"
             >
               Manage Events & Bookings
             </TabsTrigger>
             <TabsTrigger
               value="checkin"
-              className="flex-none px-4 py-2 data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-300 hover:text-white"
+              className="flex-none px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground hover:text-foreground"
             >
               Check-In Gate
             </TabsTrigger>
@@ -256,88 +256,88 @@ export const CreatorDashboard: React.FC = () => {
           <TabsContent value="analytics" className="space-y-8">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {/* Event count */}
-              <Card className="border-zinc-800 bg-zinc-900/40 text-white">
+              <Card className="border-border bg-card text-card-foreground">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Events Created</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Events Created</span>
                   <Calendar className="h-5 w-5 text-indigo-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-black">{stats?.lifetimeStats?.totalEventsCreated}</div>
-                  <p className="text-xs text-zinc-500 mt-1">Lifetime total events</p>
+                  <p className="text-xs text-muted-foreground mt-1">Lifetime total events</p>
                 </CardContent>
               </Card>
 
               {/* Tickets sold */}
-              <Card className="border-zinc-800 bg-zinc-900/40 text-white">
+              <Card className="border-border bg-card text-card-foreground">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Tickets Booked</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Tickets Booked</span>
                   <Users className="h-5 w-5 text-indigo-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-black">{stats?.lifetimeStats?.totalTicketsSold}</div>
-                  <p className="text-xs text-zinc-500 mt-1">Paid bookings across catalog</p>
+                  <p className="text-xs text-muted-foreground mt-1">Paid bookings across catalog</p>
                 </CardContent>
               </Card>
 
               {/* Attendance rate */}
-              <Card className="border-zinc-800 bg-zinc-900/40 text-white">
+              <Card className="border-border bg-card text-card-foreground">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Attendance Rate</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Attendance Rate</span>
                   <QrCode className="h-5 w-5 text-indigo-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-black">{stats?.lifetimeStats?.overallAttendanceRate}</div>
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {stats?.lifetimeStats?.totalScannedAttendees} check-ins processed
                   </p>
                 </CardContent>
               </Card>
 
               {/* Revenue */}
-              <Card className="border-zinc-800 bg-zinc-900/40 text-white">
+              <Card className="border-border bg-card text-card-foreground">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Gross Sales</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Gross Sales</span>
                   <Coins className="h-5 w-5 text-emerald-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-black text-emerald-500">{formatNaira(getOverallRevenue())}</div>
-                  <p className="text-xs text-zinc-500 mt-1">Paid ticket sales revenue</p>
+                  <p className="text-xs text-muted-foreground mt-1">Paid ticket sales revenue</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Performance breakdowns */}
-            <Card className="border-zinc-800 bg-zinc-900/40 text-white">
+            <Card className="border-border bg-card text-card-foreground">
               <CardHeader>
                 <CardTitle className="text-xl">Event Sales Breakdown</CardTitle>
-                <CardDescription className="text-zinc-500">Detailed performance metrics per event</CardDescription>
+                <CardDescription className="text-muted-foreground">Detailed performance metrics per event</CardDescription>
               </CardHeader>
               <CardContent>
                 {stats?.eventBreakdown.length === 0 ? (
-                  <p className="text-center py-6 text-zinc-500 text-sm">No events statistics available.</p>
+                  <p className="text-center py-6 text-muted-foreground text-sm">No events statistics available.</p>
                 ) : (
-                  <Table className="text-zinc-300">
-                    <TableHeader className="border-zinc-800">
+                  <Table className="text-muted-foreground">
+                    <TableHeader className="border-border">
                       <TableRow>
-                        <TableHead className="text-zinc-500 font-bold">Event Title</TableHead>
-                        <TableHead className="text-zinc-500 font-bold">Event Date</TableHead>
-                        <TableHead className="text-zinc-500 font-bold">Price</TableHead>
-                        <TableHead className="text-zinc-500 font-bold">Sales Progress</TableHead>
-                        <TableHead className="text-zinc-500 font-bold text-center">Attendance Rate</TableHead>
+                        <TableHead className="text-muted-foreground font-bold">Event Title</TableHead>
+                        <TableHead className="text-muted-foreground font-bold">Event Date</TableHead>
+                        <TableHead className="text-muted-foreground font-bold">Price</TableHead>
+                        <TableHead className="text-muted-foreground font-bold">Sales Progress</TableHead>
+                        <TableHead className="text-muted-foreground font-bold text-center">Attendance Rate</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {stats?.eventBreakdown.map((ev) => {
                         const pct = (ev.ticketsSold / ev.capacity) * 100;
                         return (
-                          <TableRow key={ev.eventId} className="border-zinc-800/60 hover:bg-zinc-900/20">
-                            <TableCell className="font-semibold text-white">{ev.title}</TableCell>
+                          <TableRow key={ev.eventId} className="border-border/60 hover:bg-muted">
+                            <TableCell className="font-semibold text-foreground">{ev.title}</TableCell>
                             <TableCell className="text-xs">{formatDate(ev.date)}</TableCell>
                             <TableCell className="font-medium text-emerald-500">{formatNaira(ev.price)}</TableCell>
                             <TableCell className="w-1/4">
                               <div className="space-y-1">
-                                <Progress value={pct} className="h-1.5 bg-zinc-800 [&>div]:bg-indigo-500" />
-                                <span className="text-[10px] text-zinc-500">
+                                <Progress value={pct} className="h-1.5 bg-accent [&>div]:bg-indigo-500" />
+                                <span className="text-[10px] text-muted-foreground">
                                   {ev.ticketsSold} / {ev.capacity} sold
                                 </span>
                               </div>
@@ -360,9 +360,9 @@ export const CreatorDashboard: React.FC = () => {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Event selection list */}
               <div className="lg:col-span-1 space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-2">Select Event</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-2">Select Event</h3>
                 {creatorEventsRaw.length === 0 ? (
-                  <p className="text-zinc-500 text-sm">No events found.</p>
+                  <p className="text-muted-foreground text-sm">No events found.</p>
                 ) : (
                   creatorEventsRaw.map((ev) => (
                     <div
@@ -371,14 +371,14 @@ export const CreatorDashboard: React.FC = () => {
                       className={`cursor-pointer rounded-lg border p-4 transition-all flex items-center justify-between ${
                         selectedEventId === ev.id
                           ? 'border-indigo-600 bg-indigo-600/10'
-                          : 'border-zinc-800 bg-zinc-900/20 hover:border-zinc-700'
+                          : 'border-border bg-muted hover:border-border'
                       }`}
                     >
                       <div className="space-y-1 truncate pr-2">
-                        <h4 className="font-bold text-white text-sm truncate">{ev.title}</h4>
-                        <p className="text-[10px] text-zinc-500">{formatDate(ev.date)}</p>
+                        <h4 className="font-bold text-foreground text-sm truncate">{ev.title}</h4>
+                        <p className="text-[10px] text-muted-foreground">{formatDate(ev.date)}</p>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-zinc-500 shrink-0" />
+                      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                     </div>
                   ))
                 )}
@@ -388,17 +388,17 @@ export const CreatorDashboard: React.FC = () => {
               <div className="lg:col-span-2 space-y-4">
                 {selectedEventId ? (
                   <>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-3 gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-border pb-3 gap-2">
                       <div>
-                        <h3 className="text-lg font-bold text-white">{getSelectedEventDetails()?.title}</h3>
-                        <p className="text-xs text-zinc-500 mt-0.5">Bookings roster and gate check-in status</p>
+                        <h3 className="text-lg font-bold text-foreground">{getSelectedEventDetails()?.title}</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">Bookings roster and gate check-in status</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleOpenEdit(getSelectedEventDetails())}
-                          className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 bg-transparent flex items-center space-x-1"
+                          className="border-border text-muted-foreground hover:bg-accent bg-transparent flex items-center space-x-1"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                           <span>Edit</span>
@@ -415,26 +415,26 @@ export const CreatorDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <Card className="border-zinc-800 bg-zinc-900/40 text-white">
+                    <Card className="border-border bg-card text-card-foreground">
                       <CardContent className="p-0">
                         {getSelectedEventDetails()?.tickets?.length === 0 ? (
-                          <p className="text-center py-12 text-zinc-500 text-sm">No ticket bookings recorded yet.</p>
+                          <p className="text-center py-12 text-muted-foreground text-sm">No ticket bookings recorded yet.</p>
                         ) : (
-                          <Table className="text-zinc-300">
-                            <TableHeader className="border-zinc-800">
+                          <Table className="text-muted-foreground">
+                            <TableHeader className="border-border">
                               <TableRow>
-                                <TableHead className="text-zinc-500 font-bold">Attendee Name</TableHead>
-                                <TableHead className="text-zinc-500 font-bold">Email</TableHead>
-                                <TableHead className="text-zinc-500 font-bold">Ref</TableHead>
-                                <TableHead className="text-zinc-500 font-bold text-center">Status</TableHead>
+                                <TableHead className="text-muted-foreground font-bold">Attendee Name</TableHead>
+                                <TableHead className="text-muted-foreground font-bold">Email</TableHead>
+                                <TableHead className="text-muted-foreground font-bold">Ref</TableHead>
+                                <TableHead className="text-muted-foreground font-bold text-center">Status</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {getSelectedEventDetails()?.tickets?.map((t: any) => (
-                                <TableRow key={t.id} className="border-zinc-800/60">
-                                  <TableCell className="font-semibold text-white">{t.user?.name}</TableCell>
+                                <TableRow key={t.id} className="border-border/60">
+                                  <TableCell className="font-semibold text-foreground">{t.user?.name}</TableCell>
                                   <TableCell className="text-xs">{t.user?.email}</TableCell>
-                                  <TableCell className="font-mono text-zinc-500 text-[10px]">{t.paymentReference}</TableCell>
+                                  <TableCell className="font-mono text-muted-foreground text-[10px]">{t.paymentReference}</TableCell>
                                   <TableCell className="text-center">
                                     {t.scanned ? (
                                       <span className="inline-flex items-center space-x-1 rounded bg-indigo-950 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-indigo-400 border border-indigo-500/30">
@@ -445,7 +445,7 @@ export const CreatorDashboard: React.FC = () => {
                                         Active
                                       </span>
                                     ) : (
-                                      <span className="inline-flex items-center space-x-1 rounded bg-zinc-950 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-500">
+                                      <span className="inline-flex items-center space-x-1 rounded bg-background px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
                                         {t.status}
                                       </span>
                                     )}
@@ -459,7 +459,7 @@ export const CreatorDashboard: React.FC = () => {
                     </Card>
                   </>
                 ) : (
-                  <p className="text-center py-12 text-zinc-500 text-sm">Select an event to view booked attendees.</p>
+                  <p className="text-center py-12 text-muted-foreground text-sm">Select an event to view booked attendees.</p>
                 )}
               </div>
             </div>
@@ -467,7 +467,7 @@ export const CreatorDashboard: React.FC = () => {
 
           {/* 3. Check-In Gate Tab */}
           <TabsContent value="checkin" className="max-w-2xl mx-auto">
-            <Card className="border-zinc-800 bg-zinc-900/60 text-white shadow-xl">
+            <Card className="border-border bg-card text-card-foreground shadow-xl">
               <CardHeader className="text-center">
                 <div className="mx-auto h-12 w-12 text-indigo-500 mb-2">
                   <QrCode className="h-full w-full" />
@@ -489,7 +489,7 @@ export const CreatorDashboard: React.FC = () => {
                     placeholder="Paste verification token UUID..."
                     value={scanToken}
                     onChange={(e) => setScanToken(e.target.value)}
-                    className="flex-grow bg-zinc-950 border-zinc-800 text-white focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
+                    className="flex-grow bg-background border-border text-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
                     required
                   />
                   <Button type="submit" disabled={scanChecking} className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 px-6 font-semibold">
@@ -502,7 +502,7 @@ export const CreatorDashboard: React.FC = () => {
                   <div className="flex flex-col items-center justify-center p-6 border-2 border-red-500/20 bg-red-500/10 rounded-xl space-y-2 text-center">
                     <AlertTriangle className="h-10 w-10 text-red-500 animate-pulse" />
                     <h4 className="text-lg font-bold text-red-400">Access DENIED</h4>
-                    <p className="text-sm text-zinc-400 max-w-sm">{scanError}</p>
+                    <p className="text-sm text-muted-foreground max-w-sm">{scanError}</p>
                   </div>
                 )}
 
@@ -510,13 +510,13 @@ export const CreatorDashboard: React.FC = () => {
                   <div className="flex flex-col items-center justify-center p-6 border-2 border-emerald-500/20 bg-emerald-500/10 rounded-xl space-y-2 text-center">
                     <CheckCircle2 className="h-12 w-12 text-emerald-400" />
                     <h4 className="text-lg font-bold text-emerald-400">Access GRANTED</h4>
-                    <div className="text-sm text-zinc-300 font-semibold mt-1">
+                    <div className="text-sm text-muted-foreground font-semibold mt-1">
                       Eventee: {scanResult.attendee}
                     </div>
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-xs text-muted-foreground">
                       Email: {scanResult.email}
                     </div>
-                    <div className="text-xs rounded bg-zinc-950 border border-zinc-800 px-3 py-1.5 text-zinc-400 mt-2 font-mono">
+                    <div className="text-xs rounded bg-background border border-border px-3 py-1.5 text-muted-foreground mt-2 font-mono">
                       Event: "{scanResult.eventTitle}"
                     </div>
                   </div>
@@ -529,12 +529,12 @@ export const CreatorDashboard: React.FC = () => {
 
       {/* 4. Create / Edit Event Form Dialog Modal */}
       <Dialog open={isFormOpen} onOpenChange={(open) => !open && setIsFormOpen(false)}>
-        <DialogContent className="border-zinc-800 bg-zinc-900 text-white max-w-md">
+        <DialogContent className="border-border bg-card text-card-foreground max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">
+            <DialogTitle className="text-xl font-bold text-foreground">
               {editingEventId ? 'Edit Event Details' : 'Create Event'}
             </DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-muted-foreground">
               Provide event parameters. Tickets will be purchasable instantly.
             </DialogDescription>
           </DialogHeader>
@@ -542,27 +542,27 @@ export const CreatorDashboard: React.FC = () => {
           <form onSubmit={handleFormSubmit} className="space-y-4 py-3">
             {/* Title */}
             <div className="space-y-1">
-              <Label htmlFor="form-title" className="text-zinc-300 text-xs">Event Title</Label>
+              <Label htmlFor="form-title" className="text-muted-foreground text-xs">Event Title</Label>
               <Input
                 id="form-title"
                 type="text"
                 placeholder="Summer Concert Series"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
-                className="bg-zinc-950 border-zinc-800 text-white focus-visible:ring-indigo-600"
+                className="bg-background border-border text-foreground focus-visible:ring-indigo-600"
                 required
               />
             </div>
 
             {/* Description */}
             <div className="space-y-1">
-              <Label htmlFor="form-desc" className="text-zinc-300 text-xs">Description</Label>
+              <Label htmlFor="form-desc" className="text-muted-foreground text-xs">Description</Label>
               <textarea
                 id="form-desc"
                 placeholder="A pulsating music performance..."
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
-                className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-offset-background"
                 rows={3}
                 required
               />
@@ -577,14 +577,14 @@ export const CreatorDashboard: React.FC = () => {
                 onChange={setFormDate}
               />
               <div className="space-y-1">
-                <Label htmlFor="form-location" className="text-zinc-300 text-xs">Venue Location</Label>
+                <Label htmlFor="form-location" className="text-muted-foreground text-xs">Venue Location</Label>
                 <Input
                   id="form-location"
                   type="text"
                   placeholder="Madison Square Garden"
                   value={formLocation}
                   onChange={(e) => setFormLocation(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 text-white focus-visible:ring-indigo-600"
+                  className="bg-background border-border text-foreground focus-visible:ring-indigo-600"
                   required
                 />
               </div>
@@ -593,7 +593,7 @@ export const CreatorDashboard: React.FC = () => {
             {/* Price & Capacity */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="form-price" className="text-zinc-300 text-xs">Price (₦ NGN)</Label>
+                <Label htmlFor="form-price" className="text-muted-foreground text-xs">Price (₦ NGN)</Label>
                 <Input
                   id="form-price"
                   type="number"
@@ -602,12 +602,12 @@ export const CreatorDashboard: React.FC = () => {
                   placeholder="29.99"
                   value={formPrice}
                   onChange={(e) => setFormPrice(Number(e.target.value))}
-                  className="bg-zinc-950 border-zinc-800 text-white focus-visible:ring-indigo-600"
+                  className="bg-background border-border text-foreground focus-visible:ring-indigo-600"
                   required
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="form-capacity" className="text-zinc-300 text-xs">Total Capacity</Label>
+                <Label htmlFor="form-capacity" className="text-muted-foreground text-xs">Total Capacity</Label>
                 <Input
                   id="form-capacity"
                   type="number"
@@ -615,7 +615,7 @@ export const CreatorDashboard: React.FC = () => {
                   placeholder="500"
                   value={formCapacity}
                   onChange={(e) => setFormCapacity(Number(e.target.value))}
-                  className="bg-zinc-950 border-zinc-800 text-white focus-visible:ring-indigo-600"
+                  className="bg-background border-border text-foreground focus-visible:ring-indigo-600"
                   required
                 />
               </div>
@@ -623,12 +623,12 @@ export const CreatorDashboard: React.FC = () => {
 
             {/* Reminder Interval */}
             <div className="space-y-1">
-              <Label htmlFor="form-reminder" className="text-zinc-300 text-xs">Creator Reminder Default</Label>
+              <Label htmlFor="form-reminder" className="text-muted-foreground text-xs">Creator Reminder Default</Label>
               <select
                 id="form-reminder"
                 value={formReminderInterval}
                 onChange={(e) => setFormReminderInterval(e.target.value)}
-                className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <option value="1_DAY">1 Day Before Event</option>
                 <option value="1_WEEK">1 Week Before Event</option>
@@ -641,7 +641,7 @@ export const CreatorDashboard: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setIsFormOpen(false)}
-                  className="border-zinc-800 text-zinc-400 bg-transparent hover:bg-zinc-950"
+                  className="border-border text-muted-foreground bg-transparent hover:bg-background"
                 >
                   Cancel
                 </Button>

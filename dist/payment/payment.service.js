@@ -100,11 +100,13 @@ let PaymentService = class PaymentService {
         }
         try {
             const amountInKobo = Math.round(event.price * 100);
+            const callbackUrl = `${this.clientUrl}/payment-callback?eventId=${event.id}`;
             const response = await axios_1.default.post(`${this.paystackUrl}/transaction/initialize`, {
                 email,
                 amount: amountInKobo,
                 currency: 'NGN',
                 reference,
+                callback_url: callbackUrl,
                 metadata: {
                     ticketId: ticket.id,
                     eventId: event.id,
@@ -143,13 +145,21 @@ let PaymentService = class PaymentService {
         }
         return { status: 'success' };
     }
-    async verifyAndFulfillByReference(reference) {
+    async verifyAndFulfillByReference(reference, userId) {
+        const normalizedReference = decodeURIComponent(reference).trim();
         const ticket = await this.prisma.ticket.findUnique({
-            where: { paymentReference: reference },
-            include: { event: true },
+            where: { paymentReference: normalizedReference },
+            include: {
+                event: {
+                    select: { id: true, title: true, date: true, location: true, price: true },
+                },
+            },
         });
         if (!ticket) {
-            throw new common_1.NotFoundException('Ticket with this reference not found');
+            throw new common_1.NotFoundException('Payment reference not found');
+        }
+        if (userId && ticket.userId !== userId) {
+            throw new common_1.BadRequestException('This payment reference does not belong to your account');
         }
         if (ticket.status === 'PAID') {
             return ticket;
@@ -157,13 +167,24 @@ let PaymentService = class PaymentService {
         try {
             const response = await axios_1.default.get(`${this.paystackUrl}/transaction/verify/${reference}`, { headers: this.paystackHeaders });
             if (response.data && response.data.status && response.data.data.status === 'success') {
-                return await this.fulfillTicket(ticket.id);
+                await this.fulfillTicket(ticket.id);
+                return this.prisma.ticket.findUnique({
+                    where: { paymentReference: reference },
+                    include: {
+                        event: {
+                            select: { id: true, title: true, date: true, location: true, price: true },
+                        },
+                    },
+                });
             }
             else {
                 throw new common_1.BadRequestException('Transaction was not successful on Paystack');
             }
         }
         catch (error) {
+            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+                throw error;
+            }
             const errMsg = error.response?.data?.message || error.message;
             throw new common_1.BadRequestException(`Paystack Verification Error: ${errMsg}`);
         }
@@ -210,21 +231,22 @@ let PaymentService = class PaymentService {
                 triggerTime.setDate(triggerTime.getDate() - 1);
             }
             if (triggerTime.getTime() > Date.now()) {
-                await tx.reminder.upsert({
+                const existingReminder = await tx.reminder.findFirst({
                     where: {
-                        userId_eventId_triggerTime: {
-                            userId: ticket.userId,
-                            eventId: event.id,
-                            triggerTime,
-                        },
-                    },
-                    create: {
                         userId: ticket.userId,
                         eventId: event.id,
                         triggerTime,
                     },
-                    update: {},
                 });
+                if (!existingReminder) {
+                    await tx.reminder.create({
+                        data: {
+                            userId: ticket.userId,
+                            eventId: event.id,
+                            triggerTime,
+                        },
+                    });
+                }
             }
             return updated;
         });
@@ -250,6 +272,33 @@ let PaymentService = class PaymentService {
             },
             orderBy: { createdAt: 'desc' },
         });
+    }
+    async reconcilePendingPayments(limit = 50) {
+        const pending = await this.prisma.ticket.findMany({
+            where: { status: 'PENDING' },
+            select: { paymentReference: true },
+            orderBy: { createdAt: 'asc' },
+            take: limit,
+        });
+        const results = [];
+        for (const ticket of pending) {
+            try {
+                await this.verifyAndFulfillByReference(ticket.paymentReference);
+                results.push({ reference: ticket.paymentReference, status: 'fulfilled' });
+            }
+            catch (err) {
+                results.push({
+                    reference: ticket.paymentReference,
+                    status: 'skipped',
+                    error: err?.message || 'Verification failed',
+                });
+            }
+        }
+        return {
+            processed: results.length,
+            fulfilled: results.filter((r) => r.status === 'fulfilled').length,
+            results,
+        };
     }
 };
 exports.PaymentService = PaymentService;

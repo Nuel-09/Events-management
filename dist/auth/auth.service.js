@@ -62,20 +62,85 @@ let AuthService = class AuthService {
         const clientId = process.env.GOOGLE_CLIENT_ID;
         this.googleClient = clientId ? new google_auth_library_1.OAuth2Client(clientId) : null;
     }
+    toPublicUser(user) {
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            hasPassword: !!user.password,
+        };
+    }
     buildAuthResponse(user) {
         const payload = { email: user.email, sub: user.id, role: user.role };
         return {
             access_token: this.jwtService.sign(payload),
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role,
-            },
+            user: this.toPublicUser(user),
         };
     }
+    async getProfile(userId) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true, email: true, name: true, role: true, password: true },
+        });
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
+        }
+        return this.toPublicUser(user);
+    }
+    async updateProfile(userId, dto) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
+        }
+        if (dto.name === undefined && !dto.newPassword) {
+            throw new common_1.BadRequestException('Provide a name and/or newPassword to update');
+        }
+        const data = {};
+        if (dto.name !== undefined) {
+            data.name = dto.name.trim();
+        }
+        if (dto.newPassword) {
+            if (user.password) {
+                if (!dto.currentPassword) {
+                    throw new common_1.BadRequestException('currentPassword is required when changing an existing password');
+                }
+                const valid = await bcrypt.compare(dto.currentPassword, user.password);
+                if (!valid) {
+                    throw new common_1.UnauthorizedException('Current password is incorrect');
+                }
+            }
+            data.password = await bcrypt.hash(dto.newPassword, 10);
+        }
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data,
+            select: { id: true, email: true, name: true, role: true, password: true },
+        });
+        return this.toPublicUser(updated);
+    }
+    async sendTestEmail(userId) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { email: true, name: true },
+        });
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
+        }
+        await this.mailService.sendDomainTest(user.email, user.name);
+        return { message: `Test email sent to ${user.email}` };
+    }
+    async deleteAccount(userId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
+        }
+        await this.prisma.user.delete({ where: { id: userId } });
+        return { message: 'Account deleted successfully' };
+    }
     async register(registerDto) {
-        const { email, password, name, role } = registerDto;
+        const email = registerDto.email.toLowerCase().trim();
+        const { password, name, role } = registerDto;
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
         });
@@ -87,7 +152,7 @@ let AuthService = class AuthService {
             data: {
                 email,
                 password: hashedPassword,
-                name,
+                name: name.trim(),
                 role: role || 'EVENTEE',
                 authProvider: 'local',
             },
@@ -97,7 +162,8 @@ let AuthService = class AuthService {
         return result;
     }
     async login(loginDto) {
-        const { email, password } = loginDto;
+        const email = loginDto.email.toLowerCase().trim();
+        const { password } = loginDto;
         const user = await this.prisma.user.findUnique({
             where: { email },
         });
@@ -118,16 +184,19 @@ let AuthService = class AuthService {
         if (!payload?.email) {
             throw new common_1.UnauthorizedException('Invalid Google token');
         }
-        const email = payload.email;
+        const normalizedEmail = payload.email.toLowerCase().trim();
         const googleId = payload.sub;
-        const name = payload.name || email.split('@')[0];
-        let user = await this.prisma.user.findUnique({ where: { email } });
+        const name = payload.name || normalizedEmail.split('@')[0];
+        let user = await this.prisma.user.findUnique({ where: { googleId } });
         let isNewUser = false;
+        if (!user) {
+            user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+        }
         if (!user) {
             isNewUser = true;
             user = await this.prisma.user.create({
                 data: {
-                    email,
+                    email: normalizedEmail,
                     name,
                     googleId,
                     authProvider: 'google',
@@ -135,11 +204,19 @@ let AuthService = class AuthService {
                 },
             });
         }
-        else if (!user.googleId) {
-            user = await this.prisma.user.update({
-                where: { id: user.id },
-                data: { googleId, authProvider: user.authProvider === 'local' ? 'google' : user.authProvider },
-            });
+        else {
+            if (user.googleId && user.googleId !== googleId) {
+                throw new common_1.UnauthorizedException('This email is linked to a different Google account');
+            }
+            if (!user.googleId) {
+                user = await this.prisma.user.update({
+                    where: { id: user.id },
+                    data: {
+                        googleId,
+                        authProvider: user.authProvider === 'local' ? 'google' : user.authProvider,
+                    },
+                });
+            }
         }
         if (isNewUser) {
             await this.mailService.sendWelcome(user.email, user.name);

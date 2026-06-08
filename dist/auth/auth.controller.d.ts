@@ -2,15 +2,16 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
     register(registerDto: RegisterDto): Promise<{
-        email: string;
-        name: string;
-        role: import("@prisma/client").$Enums.Role;
         id: string;
+        email: string;
         googleId: string | null;
+        name: string;
+        role: import(".prisma/client").$Enums.Role;
         authProvider: string;
         createdAt: Date;
         updatedAt: Date;
@@ -21,7 +22,8 @@ export declare class AuthController {
             id: string;
             email: string;
             name: string;
-            role: import("@prisma/client").$Enums.Role;
+            role: import(".prisma/client").$Enums.Role;
+            hasPassword: boolean;
         };
     }>;
     googleLogin(dto: GoogleAuthDto): Promise<{
@@ -30,7 +32,28 @@ export declare class AuthController {
             id: string;
             email: string;
             name: string;
-            role: import("@prisma/client").$Enums.Role;
+            role: import(".prisma/client").$Enums.Role;
+            hasPassword: boolean;
         };
+    }>;
+    getMe(userId: string): Promise<{
+        id: string;
+        email: string;
+        name: string;
+        role: import(".prisma/client").$Enums.Role;
+        hasPassword: boolean;
+    }>;
+    updateMe(userId: string, dto: UpdateProfileDto): Promise<{
+        id: string;
+        email: string;
+        name: string;
+        role: import(".prisma/client").$Enums.Role;
+        hasPassword: boolean;
+    }>;
+    deleteMe(userId: string): Promise<{
+        message: string;
+    }>;
+    sendTestEmail(userId: string): Promise<{
+        message: string;
     }>;
 }

@@ -5,6 +5,7 @@ exports.welcomeEmail = welcomeEmail;
 exports.ticketConfirmedEmail = ticketConfirmedEmail;
 exports.paymentReceiptEmail = paymentReceiptEmail;
 exports.eventReminderEmail = eventReminderEmail;
+exports.domainTestEmail = domainTestEmail;
 function layout(content, clientUrl) {
     return `<!DOCTYPE html>
 <html>
@@ -30,8 +31,8 @@ function layout(content, clientUrl) {
           </tr>
           <tr>
             <td style="padding:20px 32px;background:#fafafa;border-top:1px solid #e4e4e7;text-align:center;">
-              <p style="margin:0 0 8px;font-size:12px;color:#71717a;">© 2026 Eventful Platform. All rights reserved.</p>
-              <a href="${clientUrl}" style="font-size:12px;color:#059669;text-decoration:none;">eventful-platform.com</a>
+              <p style="margin:0 0 8px;font-size:12px;color:#71717a;">© 2026 Eventful. All rights reserved.</p>
+              <a href="${clientUrl}" style="font-size:12px;color:#059669;text-decoration:none;">youreventful.org</a>
             </td>
           </tr>
         </table>
@@ -104,6 +105,14 @@ function eventReminderEmail(name, event, clientUrl) {
      </table>
      <p style="text-align:center;margin:24px 0;">
        <a href="${clientUrl}/tickets" style="display:inline-block;padding:12px 28px;background:#4f46e5;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">View My Tickets</a>
+     </p>`, clientUrl);
+}
+function domainTestEmail(name, clientUrl) {
+    return layout(`<h2 style="margin:0 0 16px;font-size:22px;color:#18181b;">Custom domain test</h2>
+     <p style="margin:0 0 12px;color:#52525b;line-height:1.6;">Hi ${name},</p>
+     <p style="margin:0 0 20px;color:#52525b;line-height:1.6;">If you received this email, Eventful is successfully sending from your custom domain via Resend. Replies to automated mail are routed to <strong>support@youreventful.org</strong>.</p>
+     <p style="text-align:center;margin:24px 0;">
+       <a href="${clientUrl}/events" style="display:inline-block;padding:12px 28px;background:#4f46e5;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Open Eventful</a>
      </p>`, clientUrl);
 }
 //# sourceMappingURL=mail.templates.js.map

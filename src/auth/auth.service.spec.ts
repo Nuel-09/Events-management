@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { MailService } from '../mail/mail.service';
@@ -11,12 +11,15 @@ jest.mock('bcrypt');
 
 const mockMailService = {
   sendWelcome: jest.fn().mockResolvedValue(undefined),
+  sendDomainTest: jest.fn().mockResolvedValue(undefined),
 };
 
 const mockPrismaService = {
   user: {
     findUnique: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   },
 };
 
@@ -151,6 +154,76 @@ describe('AuthService', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('getProfile', () => {
+    it('should return the public user profile with hasPassword', async () => {
+      const user = {
+        id: 'user-id',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'EVENTEE' as const,
+        password: 'hashedPassword',
+      };
+
+      mockPrismaService.user.findUnique.mockResolvedValue(user);
+
+      const result = await service.getProfile('user-id');
+
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 'user-id' },
+        select: { id: true, email: true, name: true, role: true, password: true },
+      });
+      expect(result).toEqual({
+        id: 'user-id',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: 'EVENTEE',
+        hasPassword: true,
+      });
+    });
+
+    it('should throw UnauthorizedException when user is not found', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.getProfile('missing-id')).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('allows Google-only users to set a password without currentPassword', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: 'user-id',
+        email: 'google@example.com',
+        name: 'Google User',
+        role: 'EVENTEE',
+        password: null,
+      });
+      (bcrypt.hash as jest.Mock).mockResolvedValue('newHash');
+      mockPrismaService.user.update.mockResolvedValue({
+        id: 'user-id',
+        email: 'google@example.com',
+        name: 'Google User',
+        role: 'EVENTEE',
+        password: 'newHash',
+      });
+
+      const result = await service.updateProfile('user-id', { newPassword: 'password123' });
+
+      expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
+      expect(result.hasPassword).toBe(true);
+    });
+
+    it('requires currentPassword when user already has a password', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: 'user-id',
+        password: 'hashedPassword',
+      });
+
+      await expect(
+        service.updateProfile('user-id', { newPassword: 'password123' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

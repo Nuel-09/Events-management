@@ -1,3 +1,11 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// In development, prefer .env over stray shell env vars (e.g. accidental Render DATABASE_URL)
+if (process.env.NODE_ENV !== 'production') {
+  config({ path: resolve(process.cwd(), '.env'), override: true });
+}
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -56,7 +64,17 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
+
+  const dbHost = (() => {
+    try {
+      return new URL(process.env.DATABASE_URL || '').host;
+    } catch {
+      return 'unknown';
+    }
+  })();
+
   console.log(`🚀 Eventful Backend is running on: http://localhost:${port}`);
+  console.log(`🗄️  Database host: ${dbHost}`);
   console.log(`📚 Swagger Documentation is available on: http://localhost:${port}/api-docs`);
 }
 bootstrap();

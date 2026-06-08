@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, UseGuards, Req, Headers, RawBodyRequest, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, Req, Headers, RawBodyRequest, HttpCode, HttpStatus, ForbiddenException } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { InitializePaymentDto } from './dto/initialize-payment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -34,8 +34,11 @@ export class PaymentController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Manually verify transaction status via Paystack API' })
   @ApiResponse({ status: 200, description: 'Verification results (completes ticket fulfillment on success).' })
-  async verifyPayment(@Param('reference') reference: string) {
-    return this.paymentService.verifyAndFulfillByReference(reference);
+  async verifyPayment(
+    @Param('reference') reference: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.paymentService.verifyAndFulfillByReference(reference, userId);
   }
 
   @Get('creator')
@@ -58,5 +61,17 @@ export class PaymentController {
   ) {
     const rawBody = req.rawBody ? req.rawBody.toString('utf8') : '';
     return this.paymentService.verifyPaystackWebhook(rawBody, signature);
+  }
+
+  @Post('reconcile-pending')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Development only — verify all PENDING tickets with Paystack and fulfill successful payments',
+  })
+  reconcilePending() {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException('Not available in production');
+    }
+    return this.paymentService.reconcilePendingPayments();
   }
 }

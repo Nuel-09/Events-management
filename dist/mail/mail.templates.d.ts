@@ -12,3 +12,4 @@ export declare function eventReminderEmail(name: string, event: {
     date: string;
     location: string;
 }, clientUrl: string): string;
+export declare function domainTestEmail(name: string, clientUrl: string): string;

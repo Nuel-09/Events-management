@@ -42,11 +42,11 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-zinc-950 px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-lg border-zinc-800 bg-zinc-900/60 backdrop-blur-md text-white">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-lg border-border bg-card/60 backdrop-blur-md text-card-foreground">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold tracking-tight">Create Account</CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardDescription className="text-muted-foreground">
             Sign up to buy tickets or start organizing your own events
           </CardDescription>
         </CardHeader>
@@ -61,16 +61,16 @@ export const Register: React.FC = () => {
 
             {/* Name Input */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-zinc-300">Full Name</Label>
+              <Label htmlFor="name" className="text-foreground">Full Name</Label>
               <div className="relative">
-                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="name"
                   type="text"
                   placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="pl-10 bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
+                  className="pl-10 bg-background border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
                   required
                 />
               </div>
@@ -78,16 +78,16 @@ export const Register: React.FC = () => {
 
             {/* Email Input */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-zinc-300">Email Address</Label>
+              <Label htmlFor="email" className="text-foreground">Email Address</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="john@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
+                  className="pl-10 bg-background border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
                   required
                 />
               </div>
@@ -95,16 +95,16 @@ export const Register: React.FC = () => {
 
             {/* Password Input */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-zinc-300">Password</Label>
+              <Label htmlFor="password" className="text-foreground">Password</Label>
               <div className="relative">
-                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
                   placeholder="•••••••• (min 6 chars)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
+                  className="pl-10 bg-background border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
                   required
                 />
               </div>
@@ -112,7 +112,7 @@ export const Register: React.FC = () => {
 
             {/* Role Selection */}
             <div className="space-y-2">
-              <Label className="text-zinc-300">Select Your Account Type</Label>
+              <Label className="text-foreground">Select Your Account Type</Label>
               <div className="grid grid-cols-2 gap-4 pt-1">
                 {/* Eventee Option */}
                 <div
@@ -120,12 +120,12 @@ export const Register: React.FC = () => {
                   className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer text-center transition-all ${
                     role === 'EVENTEE'
                       ? 'border-indigo-600 bg-indigo-600/10'
-                      : 'border-zinc-800 bg-zinc-950/40 hover:border-zinc-700'
+                      : 'border-border bg-muted/50 hover:border-border'
                   }`}
                 >
-                  <CalendarDays className={`h-8 w-8 mb-2 ${role === 'EVENTEE' ? 'text-indigo-400' : 'text-zinc-400'}`} />
+                  <CalendarDays className={`h-8 w-8 mb-2 ${role === 'EVENTEE' ? 'text-indigo-400' : 'text-muted-foreground'}`} />
                   <span className="font-semibold text-sm">Attend Events</span>
-                  <span className="text-[10px] text-zinc-400 mt-1">Discover & buy tickets</span>
+                  <span className="text-[10px] text-muted-foreground mt-1">Discover & buy tickets</span>
                 </div>
 
                 {/* Creator Option */}
@@ -134,12 +134,12 @@ export const Register: React.FC = () => {
                   className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer text-center transition-all ${
                     role === 'CREATOR'
                       ? 'border-indigo-600 bg-indigo-600/10'
-                      : 'border-zinc-800 bg-zinc-950/40 hover:border-zinc-700'
+                      : 'border-border bg-muted/50 hover:border-border'
                   }`}
                 >
-                  <BarChart3 className={`h-8 w-8 mb-2 ${role === 'CREATOR' ? 'text-indigo-400' : 'text-zinc-400'}`} />
+                  <BarChart3 className={`h-8 w-8 mb-2 ${role === 'CREATOR' ? 'text-indigo-400' : 'text-muted-foreground'}`} />
                   <span className="font-semibold text-sm">Organize Events</span>
-                  <span className="text-[10px] text-zinc-400 mt-1">Sell, scan & view stats</span>
+                  <span className="text-[10px] text-muted-foreground mt-1">Sell, scan & view stats</span>
                 </div>
               </div>
             </div>
@@ -157,7 +157,7 @@ export const Register: React.FC = () => {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-2 text-center text-sm text-zinc-400">
+        <CardFooter className="flex flex-col space-y-2 text-center text-sm text-muted-foreground">
           <p>
             Already have an account?{' '}
             <Link to="/login" className="font-semibold text-indigo-500 hover:text-indigo-400">

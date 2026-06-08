@@ -52,7 +52,7 @@ export const Login: React.FC = () => {
       <Card className="w-full max-w-md border-border bg-card/60 backdrop-blur-md text-foreground">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold tracking-tight">Welcome Back</CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardDescription className="text-muted-foreground">
             Sign in to access your event dashboard or check your tickets
           </CardDescription>
         </CardHeader>
@@ -66,16 +66,16 @@ export const Login: React.FC = () => {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-zinc-300">Email Address</Label>
+              <Label htmlFor="email" className="text-foreground">Email Address</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
+                  className="pl-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
                   required
                 />
               </div>
@@ -83,17 +83,17 @@ export const Login: React.FC = () => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-zinc-300">Password</Label>
+                <Label htmlFor="password" className="text-foreground">Password</Label>
               </div>
               <div className="relative">
-                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
+                  className="pl-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-indigo-600 focus-visible:border-indigo-600"
                   required
                 />
               </div>
@@ -138,7 +138,7 @@ export const Login: React.FC = () => {
             )}
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-2 text-center text-sm text-zinc-400">
+        <CardFooter className="flex flex-col space-y-2 text-center text-sm text-muted-foreground">
           <p>
             Don't have an account?{' '}
             <Link to="/register" className="font-semibold text-indigo-500 hover:text-indigo-400">

@@ -18,6 +18,12 @@ services:
         sync: false
       - key: RESEND_API_KEY
         sync: false
+      - key: MAIL_DOMAIN
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Eventful
+      - key: MAIL_REPLY_TO
+        sync: false
       - key: MAIL_FROM
         sync: false
       - key: CLIENT_URL
