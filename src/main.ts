@@ -17,6 +17,9 @@ async function bootstrap() {
     rawBody: true,
   });
 
+  // Trust Render/proxy X-Forwarded-For so rate limits apply per client IP
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
   app.enableCors({
     origin: process.env.NODE_ENV === 'production' ? clientUrl : true,

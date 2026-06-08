@@ -9,9 +9,9 @@ export declare class AuthController {
     register(registerDto: RegisterDto): Promise<{
         id: string;
         email: string;
-        googleId: string | null;
         name: string;
         role: import(".prisma/client").$Enums.Role;
+        googleId: string | null;
         authProvider: string;
         createdAt: Date;
         updatedAt: Date;
