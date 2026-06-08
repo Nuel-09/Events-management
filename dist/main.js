@@ -13,6 +13,7 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
         rawBody: true,
     });
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     app.enableCors({
         origin: process.env.NODE_ENV === 'production' ? clientUrl : true,
@@ -40,7 +41,7 @@ async function bootstrap() {
     }, 'bearer')
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
-    swagger_1.SwaggerModule.setup('api-docs', app, document, {
+    swagger_1.SwaggerModule.setup('docs', app, document, {
         swaggerOptions: {
             persistAuthorization: true,
         },
@@ -57,7 +58,7 @@ async function bootstrap() {
     })();
     console.log(`🚀 Eventful Backend is running on: http://localhost:${port}`);
     console.log(`🗄️  Database host: ${dbHost}`);
-    console.log(`📚 Swagger Documentation is available on: http://localhost:${port}/api-docs`);
+    console.log(`📚 Swagger Documentation is available on: http://localhost:${port}/docs`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

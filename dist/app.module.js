@@ -42,9 +42,10 @@ exports.AppModule = AppModule = __decorate([
                     throttlers: [
                         {
                             ttl: 60000,
-                            limit: 100,
+                            limit: 10,
                         },
                     ],
+                    errorMessage: 'Too many attempts. Please wait a minute and try again.',
                     storage: new nestjs_throttler_storage_redis_1.ThrottlerStorageRedisService(new ioredis_1.default(process.env.REDIS_URL || 'redis://localhost:6379')),
                 }),
             }),

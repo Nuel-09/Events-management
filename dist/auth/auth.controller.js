@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const auth_service_1 = require("./auth.service");
 const register_dto_1 = require("./dto/register.dto");
 const login_dto_1 = require("./dto/login.dto");
@@ -22,6 +23,7 @@ const update_profile_dto_1 = require("./dto/update-profile.dto");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
 const current_user_decorator_1 = require("./current-user.decorator");
 const swagger_1 = require("@nestjs/swagger");
+const AUTH_RATE_LIMIT = { default: { limit: 5, ttl: 60_000 } };
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
@@ -52,9 +54,11 @@ let AuthController = class AuthController {
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('register'),
+    (0, throttler_1.Throttle)(AUTH_RATE_LIMIT),
     (0, swagger_1.ApiOperation)({ summary: 'Register a new user (Creator or Eventee)' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully registered.' }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'Email already registered.' }),
+    (0, swagger_1.ApiResponse)({ status: 429, description: 'Too many requests.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
@@ -62,10 +66,12 @@ __decorate([
 ], AuthController.prototype, "register", null);
 __decorate([
     (0, common_1.Post)('login'),
+    (0, throttler_1.Throttle)(AUTH_RATE_LIMIT),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Authenticate user and retrieve access token' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Successfully authenticated, returned JWT access token.' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid credentials.' }),
+    (0, swagger_1.ApiResponse)({ status: 429, description: 'Too many login attempts.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
@@ -73,10 +79,12 @@ __decorate([
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.Post)('google'),
+    (0, throttler_1.Throttle)(AUTH_RATE_LIMIT),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Authenticate with Google ID token' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Successfully authenticated via Google.' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid Google token.' }),
+    (0, swagger_1.ApiResponse)({ status: 429, description: 'Too many requests.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [google_auth_dto_1.GoogleAuthDto]),
